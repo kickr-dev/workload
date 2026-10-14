@@ -1,0 +1,93 @@
+---
+# Source: workload/templates/application.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workload
+      app.kubernetes.io/instance: workload
+      app.kubernetes.io/component: worker-name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: workload
+        app.kubernetes.io/instance: workload
+        app.kubernetes.io/component: worker-name
+    spec:
+      serviceAccountName: default
+      restartPolicy: Always
+      containers:
+        - name: worker-name
+          image: kickr-dev/kickr:0.1.0
+          envFrom:
+            - secretRef:
+                name: 'workload-worker-name-env'
+          volumeMounts:
+            - name: externalsecret-tls
+              mountPath: /etc/tls/
+              readOnly: true
+      volumes:
+        - name: externalsecret-tls
+          secret:
+            secretName: workload-worker-name-tls
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: workload-worker-name-env
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: SecretStore
+    name: vault
+  target:
+    name: workload-worker-name-env
+    creationPolicy: Owner
+  data:
+    - remoteRef:
+        key: api
+        property: key
+      secretKey: API_KEY
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: workload-worker-name-tls
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: vault
+  target:
+    name: workload-worker-name-tls
+    creationPolicy: Owner
+  dataFrom:
+    - extract:
+        key: tls

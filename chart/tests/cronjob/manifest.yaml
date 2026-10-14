@@ -1,0 +1,80 @@
+---
+# Source: workload/templates/application.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: workload-purge
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: purge
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: workload
+            app.kubernetes.io/instance: workload
+            app.kubernetes.io/component: purge
+        spec:
+          serviceAccountName: default
+          restartPolicy: Never
+          containers:
+            - name: purge
+              image: kickr-dev/kickr:0.1.0
+              args:
+                - purge
+                - --older-than=720h
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: workload-report
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: report
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    team: platform
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  schedule: "0 6 * * *"
+  timeZone: Europe/Paris
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      completionMode: NonIndexed
+      completions: 1
+      parallelism: 1
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: workload
+            app.kubernetes.io/instance: workload
+            app.kubernetes.io/component: report
+        spec:
+          serviceAccountName: default
+          restartPolicy: OnFailure
+          containers:
+            - name: report
+              image: kickr-dev/kickr:0.1.0
+              args:
+                - report

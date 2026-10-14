@@ -1,0 +1,49 @@
+{{- define "workload.configmaps" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+
+{{- $names := list -}}
+{{- range $config.configMaps }}
+{{- if has .name $names }}{{ fail (printf "configMaps name %q is duplicated" .name) }}{{ end }}
+{{- $names = append $names .name }}
+{{- end }}
+
+{{- range $configMap := $config.configMaps -}}
+{{- $keys := list -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ print $componentName "-" .name }}
+  labels:
+    {{- include "workload.labels" $ | nindent 4 }}
+data:
+{{- range .templates }}
+  {{- range $path, $_ := $.Files.Glob . }}
+  {{- if has (base $path) $keys }}{{ fail (printf "configMaps %q key %q is duplicated" $configMap.name (base $path)) }}{{ end }}
+  {{- $keys = append $keys (base $path) }}
+  {{ base $path }}: |2-
+    {{- tpl ($.Files.Get $path) $ | trimSuffix "\n" | nindent 4 }}
+  {{- end }}
+{{- end }}
+
+{{- range .files }}
+  {{- range $path, $_ := $.Files.Glob . }}
+  {{- if has (base $path) $keys }}{{ fail (printf "configMaps %q key %q is duplicated" $configMap.name (base $path)) }}{{ end }}
+  {{- $keys = append $keys (base $path) }}
+  {{ base $path }}: |2-
+    {{- $.Files.Get $path | trimSuffix "\n" | nindent 4 }}
+  {{- end }}
+{{- end }}
+
+{{- with .data }}
+  {{- /* ConfigMap data only accepts strings */}}
+  {{- $data := dict }}
+  {{- range $key, $value := . }}
+  {{- if has $key $keys }}{{ fail (printf "configMaps %q key %q is duplicated" $configMap.name $key) }}{{ end }}
+  {{- $_ := set $data $key (tpl (toString $value) $) }}
+  {{- end }}
+  {{- toYaml $data | nindent 2 }}
+{{- end }}
+{{ end }}
+{{- end }}

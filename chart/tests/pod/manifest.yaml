@@ -1,0 +1,134 @@
+---
+# Source: workload/templates/application.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9090
+      targetPort: http-metrics
+      protocol: TCP
+      name: http-metrics
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workload
+      app.kubernetes.io/instance: workload
+      app.kubernetes.io/component: worker-name
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: 'worker-name'
+      labels:
+        app.kubernetes.io/name: workload
+        app.kubernetes.io/instance: workload
+        app.kubernetes.io/component: worker-name
+    spec:
+      serviceAccountName: default
+      restartPolicy: Always
+      containers:
+        - name: worker-name
+          image: kickr-dev/kickr:0.1.0
+          env:
+            - name: BINARY_NAME
+              value: "worker-name"
+            - name: HTTP_METRICS_PORT
+              value: "9090"
+            - name: HTTP_PORT
+              value: "3000"
+            - name: LOG_JSON
+              value: "true"
+          envFrom:
+            - configMapRef:
+                name: shared-config
+            - prefix: SECRET_
+              secretRef:
+                name: shared-secret
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+            - name: http-metrics
+              containerPort: 9090
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 250m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+          startupProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /ping
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        runAsGroup: 1001
+        runAsNonRoot: true
+        runAsUser: 1001
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations:
+        - effect: NoSchedule
+          key: dedicated
+          operator: Equal
+          value: workers
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: worker-name
+              topologyKey: kubernetes.io/hostname
+            weight: 100

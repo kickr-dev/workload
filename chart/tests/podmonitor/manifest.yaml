@@ -1,0 +1,212 @@
+---
+# Source: workload/templates/application.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: workload-statefulset-name-headless
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: statefulset-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    service.kubernetes.io/headless: ""
+spec:
+  selector:
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: statefulset-name
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - port: 9090
+      targetPort: http-metrics
+      protocol: TCP
+      name: http-metrics
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: workload-statefulset-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: statefulset-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: statefulset-name
+  type: ClusterIP
+  ports:
+    - port: 9090
+      targetPort: http-metrics
+      protocol: TCP
+      name: http-metrics
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9090
+      targetPort: http-metrics
+      protocol: TCP
+      name: http-metrics
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workload
+      app.kubernetes.io/instance: workload
+      app.kubernetes.io/component: worker-name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: workload
+        app.kubernetes.io/instance: workload
+        app.kubernetes.io/component: worker-name
+    spec:
+      serviceAccountName: default
+      restartPolicy: Always
+      containers:
+        - name: worker-name
+          image: kickr-dev/kickr:0.1.0
+          env:
+            - name: HTTP_METRICS_PORT
+              value: "9090"
+            - name: HTTP_PORT
+              value: "3000"
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+            - name: http-metrics
+              containerPort: 9090
+              protocol: TCP
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: workload-statefulset-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: statefulset-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workload
+      app.kubernetes.io/instance: workload
+      app.kubernetes.io/component: statefulset-name
+  serviceName: workload-statefulset-name-headless
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: workload
+        app.kubernetes.io/instance: workload
+        app.kubernetes.io/component: statefulset-name
+    spec:
+      serviceAccountName: default
+      restartPolicy: Always
+      containers:
+        - name: statefulset-name
+          image: kickr-dev/kickr:0.1.0
+          env:
+            - name: HTTP_METRICS_PORT
+              value: "9090"
+          ports:
+            - name: http-metrics
+              containerPort: 9090
+              protocol: TCP
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: workload-statefulset-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: statefulset-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workload
+      app.kubernetes.io/instance: workload
+      app.kubernetes.io/component: statefulset-name
+  podMetricsEndpoints:
+    - port: http-metrics
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workload
+      app.kubernetes.io/instance: workload
+      app.kubernetes.io/component: worker-name
+  podMetricsEndpoints:
+    - port: http-metrics
+      path: /metrics
+      interval: 30s

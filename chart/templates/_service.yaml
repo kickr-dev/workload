@@ -1,0 +1,64 @@
+{{/*
+Services of the component: a regular one exposing its ports, and a headless one for StatefulSets.
+*/}}
+{{- define "workload.service" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+{{- $service := mergeOverwrite (dict "enabled" true "type" "ClusterIP") ($config.service | default dict) -}}
+
+{{- range $name, $_ := $service.ports }}
+{{- if not (hasKey ($config.ports | default dict) $name) }}{{ fail (printf "service.ports %q isn't in ports" $name) }}{{ end }}
+{{- end }}
+{{- $ports := include "workload.ports" . | fromYaml -}}
+
+{{- if eq $config.kind "StatefulSet" -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $componentName }}-headless
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+    service.kubernetes.io/headless: ""
+spec:
+  selector:
+    {{- include "workload.selectorLabels" . | nindent 4 }}
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  {{- with $ports }}
+  ports:
+    {{- range $name, $port := . }}
+    - port: {{ $port.servicePort }}
+      targetPort: {{ $name }}
+      protocol: {{ $port.protocol }}
+      name: {{ $name }}
+    {{- end }}
+  {{- end }}
+{{ end }}
+
+{{- if and $ports $service.enabled -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+  {{- with $service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    {{- include "workload.selectorLabels" . | nindent 4 }}
+  type: {{ $service.type }}
+  ports:
+    {{- range $name, $port := $ports }}
+    - port: {{ $port.servicePort }}
+      targetPort: {{ $name }}
+      protocol: {{ $port.protocol }}
+      name: {{ $name }}
+    {{- end }}
+{{ end }}
+{{- end }}

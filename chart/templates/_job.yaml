@@ -1,0 +1,42 @@
+{{- define "workload.job" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $componentName }}-{{ .Release.Revision }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+    {{- with $config.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $config.annotations }}
+  annotations:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $config.suspend }}
+  suspend: {{ . }}
+  {{- end }}
+  {{- with $config.completionMode }}
+  completionMode: {{ . }}
+  {{- end }}
+  {{- with $config.completions }}
+  completions: {{ . }}
+  {{- end }}
+  {{- with $config.parallelism }}
+  parallelism: {{ . }}
+  {{- end }}
+  {{- if hasKey $config "backoffLimit" }}
+  backoffLimit: {{ $config.backoffLimit }}
+  {{- end }}
+  {{- with $config.activeDeadlineSeconds }}
+  activeDeadlineSeconds: {{ . }}
+  {{- end }}
+  {{- if hasKey $config "ttlSecondsAfterFinished" }}
+  ttlSecondsAfterFinished: {{ $config.ttlSecondsAfterFinished }}
+  {{- end }}
+  template:
+    {{- include "workload.pod" . | nindent 4 }}
+{{ end }}

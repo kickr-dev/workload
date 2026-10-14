@@ -1,0 +1,30 @@
+{{- define "workload.podmonitor" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+
+{{- $port := index (include "workload.ports" . | fromYaml) $config.podMonitor.port -}}
+{{- if not $port }}{{ fail (printf "podMonitor.port %q isn't in ports" $config.podMonitor.port) }}{{ end -}}
+{{- if ne $port.protocol "TCP" }}{{ fail (printf "podMonitor.port %q isn't TCP" $config.podMonitor.port) }}{{ end -}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+    {{- with $config.podMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "workload.selectorLabels" . | nindent 6 }}
+  podMetricsEndpoints:
+    - port: {{ $config.podMonitor.port }}
+      {{- with $config.podMonitor.path }}
+      path: {{ . }}
+      {{- end }}
+      {{- with $config.podMonitor.interval }}
+      interval: {{ . }}
+      {{- end }}
+{{ end }}

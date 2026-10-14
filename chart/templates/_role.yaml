@@ -1,0 +1,13 @@
+{{- define "workload.role" -}}
+{{- $componentName := include "workload.componentName" . -}}
+{{- $serviceAccount := and .Component .Component.Values.serviceAccount | default .Values.serviceAccount -}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+rules:
+  {{- toYaml $serviceAccount.rules | nindent 2 }}
+{{ end }}

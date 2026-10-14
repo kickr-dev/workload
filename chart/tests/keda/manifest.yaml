@@ -1,0 +1,65 @@
+---
+# Source: workload/templates/application.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workload
+      app.kubernetes.io/instance: workload
+      app.kubernetes.io/component: worker-name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: workload
+        app.kubernetes.io/instance: workload
+        app.kubernetes.io/component: worker-name
+    spec:
+      serviceAccountName: default
+      restartPolicy: Always
+      containers:
+        - name: worker-name
+          image: kickr-dev/kickr:0.1.0
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: workload-worker-name
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  pollingInterval: 30
+  cooldownPeriod: 300
+  triggers:
+    - metadata:
+        value: "80"
+      metricType: Utilization
+      type: cpu
+    - metadata:
+        desiredReplicas: "3"
+        end: 0 20 * * 1-5
+        start: 0 8 * * 1-5
+        timezone: Europe/Paris
+      type: cron

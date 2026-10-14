@@ -1,0 +1,108 @@
+---
+# Source: workload/templates/application.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+      name: http
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workload
+      app.kubernetes.io/instance: workload
+      app.kubernetes.io/component: worker-name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: workload
+        app.kubernetes.io/instance: workload
+        app.kubernetes.io/component: worker-name
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: default
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 45
+      containers:
+        - name: worker-name
+          image: kickr-dev/kickr:1.0.0@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          command:
+            - /bin/kickr
+          args:
+            - serve
+            - --listen=:$(HTTP_PORT)
+            - --namespace=default
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: database-credentials
+            - name: GOMEMLIMIT
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.memory
+            - name: HTTP_PORT
+              value: "3000"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            limits:
+              memory: 256Mi
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 5
+      topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: worker-name
+              app.kubernetes.io/instance: workload
+              app.kubernetes.io/name: workload
+          maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: workload
+          maxSkew: 2
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway

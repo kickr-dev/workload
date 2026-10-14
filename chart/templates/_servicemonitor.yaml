@@ -1,0 +1,33 @@
+{{- define "workload.servicemonitor" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+
+{{- $port := index (include "workload.ports" . | fromYaml) $config.serviceMonitor.port -}}
+{{- if not $port }}{{ fail (printf "serviceMonitor.port %q isn't in ports" $config.serviceMonitor.port) }}{{ end -}}
+{{- if ne $port.protocol "TCP" }}{{ fail (printf "serviceMonitor.port %q isn't TCP" $config.serviceMonitor.port) }}{{ end -}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+    {{- with $config.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "workload.selectorLabels" . | nindent 6 }}
+    matchExpressions:
+      - key: service.kubernetes.io/headless
+        operator: DoesNotExist
+  endpoints:
+    - port: {{ $config.serviceMonitor.port }}
+      {{- with $config.serviceMonitor.path }}
+      path: {{ . }}
+      {{- end }}
+      {{- with $config.serviceMonitor.interval }}
+      interval: {{ . }}
+      {{- end }}
+{{ end }}

@@ -1,0 +1,51 @@
+{{- define "workload.horizontalpodautoscaler" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: {{ $config.kind }}
+    name: {{ $componentName }}
+  {{- with $config.autoscaling }}
+  {{- if and .minReplicas (gt (int .minReplicas) (int .maxReplicas)) }}
+  {{- fail (printf "autoscaling.minReplicas %v is greater than maxReplicas %v" .minReplicas .maxReplicas) }}
+  {{- end }}
+  {{- with .minReplicas }}
+  minReplicas: {{ . }}
+  {{- end }}
+  maxReplicas: {{ .maxReplicas }}
+  {{- if or .targetCPUUtilizationPercentage .targetMemoryUtilizationPercentage .metrics }}
+  metrics:
+    {{- with .targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+    {{- end }}
+    {{- with .targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+    {{- end }}
+    {{- with .metrics }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- with .behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{ end }}

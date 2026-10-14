@@ -1,0 +1,812 @@
+# yaml-language-server: $schema=values.schema.json
+# Example only, the library never reads these values.
+# Declare them in your application chart values.yaml.
+
+imagePullSecrets: []
+
+appVersion: ""
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+  # Whether pods mount the service account API token, a pod automountServiceAccountToken takes precedence
+  # automountServiceAccountToken: false
+  # Role rules bound to the service account, no Role/RoleBinding when empty
+  # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#policyrule-v1-rbac-authorization-k8s-io
+  rules: []
+    # - apiGroups: [""]
+    #   resources: [configmaps]
+    #   verbs: [get, list, watch]
+
+#############################################
+#                all workers                #
+#############################################
+workers:
+  worker:
+    # Deployment | StatefulSet | DaemonSet
+    kind: Deployment
+    replicaCount: 1 # Deployment, StatefulSet
+    paused: true # Deployment
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#deploymentstrategy-v1-apps
+    updateStrategy: {}
+      # type: RollingUpdate | Recreate (Deployment) | OnDelete (StatefulSet, DaemonSet)
+      # rollingUpdate:
+      #   maxSurge: 25% # Deployment, DaemonSet
+      #   maxUnavailable: 0
+      #   partition: 0 # StatefulSet
+    # StatefulSet pods start order, OrderedReady | Parallel
+    # podManagementPolicy: OrderedReady
+    # minReadySeconds: 0
+    # revisionHistoryLimit: 10
+    # progressDeadlineSeconds: 600 # Deployment
+    restartPolicy: Always
+    # terminationGracePeriodSeconds: 30
+
+    image:
+      registry: ""
+      repository: registry.example.com/app
+      pullPolicy: ""
+      # Overrides the image tag whose default is the chart appVersion, '<tag>@sha256:<hex>' pins a digest.
+      tag: ""
+    command: []
+    args: []
+
+    env:
+      LOG_LEVEL: info
+      # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#envvarsource-v1-core
+      BINARY_NAME:
+        fieldRef:
+          fieldPath: metadata.labels['app.kubernetes.io/component']
+      # POD_NAME:
+      #   fieldRef:
+      #     fieldPath: metadata.name
+      # GOMEMLIMIT:
+      #   resourceFieldRef:
+      #     resource: limits.memory
+    envFrom: []
+      # - prefix: ""
+      #   configMapRef:
+      #     name: ""
+      # - secretRef:
+      #     name: ""
+    # Container ports by name, exposed on the worker service
+    # and exported as <NAME>_PORT env (dashes become underscores)
+    ports:
+      http: 3000
+      # metrics: 9090
+      # dns:
+      #   port: 5353
+      #   protocol: UDP # TCP | UDP | SCTP
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#probe-v1-core
+    livenessProbe: false
+      # httpGet:
+      #   httpHeaders:
+      #     header: value
+      #   path: /ping
+      #   port: 3000
+      #   scheme: http
+      # initialDelaySeconds: 15
+      # periodSeconds: 10
+      # successThreshold: 1
+      # failureThreshold: 3
+    readinessProbe: false
+      # exec:
+      #   command: ["ls", "-lart"]
+      # initialDelaySeconds: 15
+      # periodSeconds: 10
+      # successThreshold: 1
+      # failureThreshold: 3
+    startupProbe: false
+      # grpc:
+      #   port: 3000
+      #   service: ""
+      # initialDelaySeconds: 15
+      # periodSeconds: 10
+      # successThreshold: 1
+      # failureThreshold: 3
+
+    # ConfigMaps are named <fullname>-<component>-<name>, mounted read-only at mountPath when set
+    configMaps: []
+      # - name: config
+      #   mountPath: /etc/config/
+      #   templates: # chart files globs to be included in configmap with tpl
+      #     - folder_name/*
+      #   files: # chart files globs to be included in configmap without tpl
+      #     - folder_name/*
+      #   data:
+      #     name: value
+
+    # Secrets are named <fullname>-<component>-<name>, mounted read-only at mountPath when set
+    secrets: []
+      # - name: credentials
+      #   mountPath: /etc/secrets/
+      #   templates: # chart files globs to be included in secret with tpl
+      #     - folder_name/*
+      #   files: # chart files globs to be included in secret without tpl
+      #     - folder_name/*
+      #   data:
+      #     name: value
+
+    # https://external-secrets.io/latest/api/externalsecret/
+    # ExternalSecrets and their Secret are named <fullname>-<component>-<name>, mounted read-only at mountPath when set
+    externalSecrets: []
+      # - name: database
+      #   mountPath: /etc/database/
+      #   refreshInterval: 1h
+      #   secretStoreRef:
+      #     kind: SecretStore | ClusterSecretStore
+      #     name: vault
+      #   data:
+      #     - secretKey: password
+      #       remoteRef:
+      #         key: database
+      #         property: password
+      #   dataFrom:
+      #     - extract:
+      #         key: database
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#persistentvolumeclaimspec-v1-core
+    # Claims mounted at their mountPath, one per pod on a StatefulSet, else a PersistentVolumeClaim
+    volumeClaims: []
+      # - name: data
+      #   mountPath: /var/lib/data/
+      #   size: 1Gi
+      #   storageClassName: "" # cluster default when empty
+      #   accessModes: [ReadWriteOnce]
+      #   retain: false # kept on helm uninstall, unsupported on StatefulSet
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#statefulsetpersistentvolumeclaimretentionpolicy-v1-apps
+    # StatefulSet claims deletion
+    # persistentVolumeClaimRetentionPolicy:
+    #   whenDeleted: Retain # Retain | Delete
+    #   whenScaled: Retain # Retain | Delete
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#volume-v1-core
+    volumes: []
+      # - name: ""
+      #   configMap:
+      #     name: configMapName
+      # - name: ""
+      #   emptyDir:
+      #     medium: ""
+      #     sizeLimit: 1Gi
+      # - name: ""
+      #   persistentVolumeClaim:
+      #     claimName: ""
+      #     readOnly: false
+      # - name: ""
+      #   secret:
+      #     secretName: ""
+    volumeMounts: []
+      # - mountPath: /etc/config/
+      #   name: volume[*].name
+      #   readOnly: true
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#container-v1-core
+    # Containers run in order before the component one, restartPolicy set to 'Always' makes a native sidecar (Kubernetes 1.29+)
+    initContainers: []
+      # - name: wait-db
+      #   image: busybox:1.37.0
+      #   command: [sh, -c, "until nc -z db 5432; do sleep 1; done"]
+      # - name: proxy
+      #   image: envoyproxy/envoy:v1.36.0
+      #   restartPolicy: Always
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#servicespec-v1-core
+    # Service exposing the ports, the StatefulSet headless one only takes the ports remap
+    service:
+      # Can't be disabled with httpRoute, ingressRoute or serviceMonitor
+      enabled: true
+      type: ClusterIP # ClusterIP | NodePort | LoadBalancer
+      annotations: {}
+      # Service port by ports name, the container port when omitted
+      ports: {}
+        # http: 80
+
+    # https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/
+    ingressRoute:
+      enabled: false
+      annotations: {}
+      # Name of the ports entry the routes are sent to, services are added automatically
+      port: http
+      entryPoints: []
+        # - websecure
+      # Rendered with tpl, to share hosts across routes
+      routes: []
+        # - match: Host(`{{ .Values.host }}`) && PathPrefix(`/`)
+        #   middlewares:
+        #     - name: strip-prefix
+      tls: {}
+        # certResolver: letsencrypt
+        # secretName: api-example-com-tls
+
+    # https://gateway-api.sigs.k8s.io/references/spec/#httproutespec
+    httpRoute:
+      enabled: false
+      annotations: {}
+      # Name of the ports entry the rules are sent to, backendRefs are added automatically
+      port: http
+      # Gateways (and their listeners) the route attaches to
+      parentRefs: []
+        # - name: gateway
+        #   namespace: gateway-system
+        #   sectionName: https
+      hostnames: []
+        # - api.example.com
+      rules: []
+        # - matches:
+        #     - path:
+        #         type: PathPrefix | Exact | RegularExpression
+        #         value: /
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#horizontalpodautoscalerspec-v2-autoscaling
+    # Drops replicaCount to let the HorizontalPodAutoscaler own it, can't be enabled with keda
+    autoscaling:
+      enabled: false # Deployment, StatefulSet
+      minReplicas: 1
+      maxReplicas: 10
+      # Percentage of the container resources.requests, 0 disables the metric
+      targetCPUUtilizationPercentage: 80
+      targetMemoryUtilizationPercentage: 80
+
+      # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#metricspec-v2-autoscaling
+      metrics: []
+        # requires a custom metrics adapter (e.g. prometheus-adapter)
+        # - type: Pods
+        #   pods:
+        #     metric:
+        #       name: my_custom_metric
+        #     target:
+        #       type: AverageValue
+        #       averageValue: "100"
+
+      # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#horizontalpodautoscalerbehavior-v2-autoscaling
+      behavior: {}
+        # scaleDown:
+        #   stabilizationWindowSeconds: 300
+        #   policies:
+        #     - type: Pods | Percent
+        #       value: 1
+        #       periodSeconds: 60
+
+    # https://keda.sh/docs/latest/reference/scaledobject-spec/
+    # Creates its own HorizontalPodAutoscaler and drops replicaCount, can't be enabled with autoscaling
+    keda:
+      enabled: false # Deployment, StatefulSet
+      # Bounds of every trigger, the highest replicas count asked by a trigger wins
+      minReplicaCount: 1
+      maxReplicaCount: 10
+      pollingInterval: 30
+      cooldownPeriod: 300
+      # https://keda.sh/docs/latest/scalers/
+      triggers: []
+        # - type: cpu
+        #   metricType: Utilization
+        #   metadata:
+        #     value: "80" # percentage of the container cpu requests
+        # - type: cron
+        #   metadata:
+        #     timezone: Europe/Paris
+        #     start: 0 8 * * 1-5 # window opens on weekdays at 8:00
+        #     end: 0 20 * * 1-5 # window closes at 20:00, back to minReplicaCount (or other triggers)
+        #     desiredReplicas: "3" # floor during the window, other triggers can still scale up to maxReplicaCount
+
+    # https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler
+    vpa:
+      enabled: false
+      # Off (recommendations only) | Initial | Recreate | InPlaceOrRecreate
+      updateMode: "Off"
+      controlledResources: [cpu, memory]
+      minAllowed: {}
+        # cpu: 50m
+        # memory: 64Mi
+      maxAllowed: {}
+        # cpu: "1"
+        # memory: 1Gi
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#poddisruptionbudgetspec-v1-policy
+    pdb:
+      enabled: false
+      # Number or percentage of pods, set either minAvailable or maxUnavailable
+      maxUnavailable: 1
+      # minAvailable: 50%
+
+    # https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.PodMonitor
+    # Scrapes the worker pods directly, can't be enabled with serviceMonitor
+    podMonitor:
+      enabled: false
+      # Name of the ports entry scraped
+      port: http
+      path: /metrics
+      interval: 30s
+      # Prometheus only scrapes the PodMonitors whose labels match its own selector,
+      # e.g. kube-prometheus-stack installed with 'helm install monitoring ...' expects 'release: monitoring'
+      labels: {}
+        # release: monitoring
+
+    # https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ServiceMonitor
+    # Scrapes the worker service, can't be enabled with podMonitor
+    serviceMonitor:
+      enabled: false
+      # Name of the ports entry scraped
+      port: http
+      path: /metrics
+      interval: 30s
+      # Prometheus only scrapes the ServiceMonitors whose labels match its own selector,
+      # e.g. kube-prometheus-stack installed with 'helm install monitoring ...' expects 'release: monitoring'
+      labels: {}
+        # release: monitoring
+
+    # Added to the component controller (Deployment, StatefulSet, DaemonSet, Job or CronJob), annotations rendered with tpl
+    annotations: {}
+      # reloader.stakater.com/auto: "true"
+    labels: {}
+    podAnnotations: {}
+    podLabels: {}
+      # azure.workload.identity/use: "true"
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#podsecuritycontext-v1-core
+    podSecurityContext: {}
+      # fsGroup: 2
+      # fsGroupChangePolicy: Always | OnRootMismatch
+      # runAsGroup: 1001
+      # runAsNonRoot: true
+      # runAsUser: 1001
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#securitycontext-v1-core
+    securityContext: {}
+      # allowPrivilegeEscalation: false
+      # capabilities:
+      #   add: []
+      #   drop: []
+      # privileged: false
+      # readOnlyRootFilesystem: true
+      # runAsGroup: 1001
+      # runAsNonRoot: true
+      # runAsUser: 1001
+
+    # Replaces the release serviceAccount for this component, named <fullname>-<component> when created without a name
+    serviceAccount: {}
+      # create: true
+      # annotations: {}
+      # name: ""
+      # automountServiceAccountToken: false
+      # rules: []
+    # automountServiceAccountToken: false
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#lifecycle-v1-core
+    lifecycle: {}
+      # preStop:
+      #   sleep:
+      #     seconds: 5
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#nodeselector-v1-core
+    nodeSelector: {}
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#toleration-v1-core
+    tolerations: []
+      # - effect: NoSchedule | PreferNoSchedule | NoExecute
+      #   key: ""
+      #   operator: Exists | Equal
+      #   tolerationSeconds: 600
+      #   value: ""
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#affinity-v1-core
+    affinity: {}
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#topologyspreadconstraint-v1-core
+    # An entry without labelSelector selects the component pods
+    topologySpreadConstraints: []
+      # - maxSkew: 1
+      #   topologyKey: topology.kubernetes.io/zone
+      #   whenUnsatisfiable: ScheduleAnyway | DoNotSchedule
+#############################################
+#                 all jobs                  #
+#############################################
+jobs:
+  job:
+    suspend: true
+    completionMode: NonIndexed
+    completions: 1
+    parallelism: 1
+    # backoffLimit: 6
+    # activeDeadlineSeconds: 600
+    # ttlSecondsAfterFinished: 600
+    restartPolicy: OnFailure
+    # terminationGracePeriodSeconds: 30
+
+    image:
+      registry: ""
+      repository: registry.example.com/app
+      pullPolicy: ""
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ""
+    command: []
+    args: []
+
+    env:
+      LOG_LEVEL: info
+      # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#envvarsource-v1-core
+      BINARY_NAME:
+        fieldRef:
+          fieldPath: metadata.labels['app.kubernetes.io/component']
+      # POD_NAME:
+      #   fieldRef:
+      #     fieldPath: metadata.name
+      # GOMEMLIMIT:
+      #   resourceFieldRef:
+      #     resource: limits.memory
+    envFrom: []
+      # - prefix: ""
+      #   configMapRef:
+      #     name: ""
+      # - secretRef:
+      #     name: ""
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+
+    # ConfigMaps are named <fullname>-<component>-<name>, mounted read-only at mountPath when set
+    configMaps: []
+      # - name: config
+      #   mountPath: /etc/config/
+      #   templates: # chart files globs to be included in configmap with tpl
+      #     - folder_name/*
+      #   files: # chart files globs to be included in configmap without tpl
+      #     - folder_name/*
+      #   data:
+      #     name: value
+
+    # Secrets are named <fullname>-<component>-<name>, mounted read-only at mountPath when set
+    secrets: []
+      # - name: credentials
+      #   mountPath: /etc/secrets/
+      #   templates: # chart files globs to be included in secret with tpl
+      #     - folder_name/*
+      #   files: # chart files globs to be included in secret without tpl
+      #     - folder_name/*
+      #   data:
+      #     name: value
+
+    # https://external-secrets.io/latest/api/externalsecret/
+    # ExternalSecrets and their Secret are named <fullname>-<component>-<name>, mounted read-only at mountPath when set
+    externalSecrets: []
+      # - name: database
+      #   mountPath: /etc/database/
+      #   refreshInterval: 1h
+      #   secretStoreRef:
+      #     kind: SecretStore | ClusterSecretStore
+      #     name: vault
+      #   data:
+      #     - secretKey: password
+      #       remoteRef:
+      #         key: database
+      #         property: password
+      #   dataFrom:
+      #     - extract:
+      #         key: database
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#persistentvolumeclaimspec-v1-core
+    # PersistentVolumeClaims mounted at their mountPath
+    volumeClaims: []
+      # - name: data
+      #   mountPath: /var/lib/data/
+      #   size: 1Gi
+      #   storageClassName: "" # cluster default when empty
+      #   accessModes: [ReadWriteOnce]
+      #   retain: false # kept on helm uninstall
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#volume-v1-core
+    volumes: []
+      # - name: ""
+      #   configMap:
+      #     name: configMapName
+      # - name: ""
+      #   emptyDir:
+      #     medium: ""
+      #     sizeLimit: 1Gi
+      # - name: ""
+      #   persistentVolumeClaim:
+      #     claimName: ""
+      #     readOnly: false
+      # - name: ""
+      #   secret:
+      #     secretName: ""
+    volumeMounts: []
+      # - mountPath: /etc/config/
+      #   name: volume[*].name
+      #   readOnly: true
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#container-v1-core
+    # Containers run in order before the component one, restartPolicy set to 'Always' makes a native sidecar (Kubernetes 1.29+)
+    initContainers: []
+      # - name: wait-db
+      #   image: busybox:1.37.0
+      #   command: [sh, -c, "until nc -z db 5432; do sleep 1; done"]
+      # - name: proxy
+      #   image: envoyproxy/envoy:v1.36.0
+      #   restartPolicy: Always
+
+    # Added to the component controller (Deployment, StatefulSet, DaemonSet, Job or CronJob), annotations rendered with tpl
+    annotations: {}
+      # reloader.stakater.com/auto: "true"
+    labels: {}
+    podAnnotations: {}
+    podLabels: {}
+      # azure.workload.identity/use: "true"
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#podsecuritycontext-v1-core
+    podSecurityContext: {}
+      # fsGroup: 2
+      # fsGroupChangePolicy: Always | OnRootMismatch
+      # runAsGroup: 1001
+      # runAsNonRoot: true
+      # runAsUser: 1001
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#securitycontext-v1-core
+    securityContext: {}
+      # allowPrivilegeEscalation: false
+      # capabilities:
+      #   add: []
+      #   drop: []
+      # privileged: false
+      # readOnlyRootFilesystem: true
+      # runAsGroup: 1001
+      # runAsNonRoot: true
+      # runAsUser: 1001
+
+    # Replaces the release serviceAccount for this component, named <fullname>-<component> when created without a name
+    serviceAccount: {}
+      # create: true
+      # annotations: {}
+      # name: ""
+      # automountServiceAccountToken: false
+      # rules: []
+    # automountServiceAccountToken: false
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#lifecycle-v1-core
+    lifecycle: {}
+      # preStop:
+      #   sleep:
+      #     seconds: 5
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#nodeselector-v1-core
+    nodeSelector: {}
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#toleration-v1-core
+    tolerations: []
+      # - effect: NoSchedule | PreferNoSchedule | NoExecute
+      #   key: ""
+      #   operator: Exists | Equal
+      #   tolerationSeconds: 600
+      #   value: ""
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#affinity-v1-core
+    affinity: {}
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#topologyspreadconstraint-v1-core
+    # An entry without labelSelector selects the component pods
+    topologySpreadConstraints: []
+      # - maxSkew: 1
+      #   topologyKey: topology.kubernetes.io/zone
+      #   whenUnsatisfiable: ScheduleAnyway | DoNotSchedule
+#############################################
+#               all cronjobs                #
+#############################################
+crons:
+  cron:
+    schedule: "0 0 */1 * *"
+    # timeZone: Europe/Paris
+    suspend: true
+    concurrencyPolicy: Forbid
+    # startingDeadlineSeconds: 60
+    completionMode: NonIndexed
+    completions: 1
+    parallelism: 1
+    # backoffLimit: 6
+    # activeDeadlineSeconds: 600
+    # ttlSecondsAfterFinished: 600
+    failedJobsHistoryLimit: 1
+    successfulJobsHistoryLimit: 3
+    restartPolicy: OnFailure
+    # terminationGracePeriodSeconds: 30
+
+    image:
+      registry: ""
+      # Rendered with tpl, e.g. '{{ .Values.image.repository }}' to reuse a repository declared once in your values
+      repository: registry.example.com/app
+      pullPolicy: ""
+      # Overrides the image tag whose default is the chart appVersion, '<tag>@sha256:<hex>' pins a digest.
+      tag: ""
+    command: []
+    args: []
+
+    env:
+      LOG_LEVEL: info
+      # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#envvarsource-v1-core
+      BINARY_NAME:
+        fieldRef:
+          fieldPath: metadata.labels['app.kubernetes.io/component']
+      # POD_NAME:
+      #   fieldRef:
+      #     fieldPath: metadata.name
+      # GOMEMLIMIT:
+      #   resourceFieldRef:
+      #     resource: limits.memory
+    envFrom: []
+      # - prefix: ""
+      #   configMapRef:
+      #     name: ""
+      # - secretRef:
+      #     name: ""
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+
+    # ConfigMaps are named <fullname>-<component>-<name>, mounted read-only at mountPath when set
+    configMaps: []
+      # - name: config
+      #   mountPath: /etc/config/
+      #   templates: # chart files globs to be included in configmap with tpl
+      #     - folder_name/*
+      #   files: # chart files globs to be included in configmap without tpl
+      #     - folder_name/*
+      #   data:
+      #     name: value
+
+    # Secrets are named <fullname>-<component>-<name>, mounted read-only at mountPath when set
+    secrets: []
+      # - name: credentials
+      #   mountPath: /etc/secrets/
+      #   templates: # chart files globs to be included in secret with tpl
+      #     - folder_name/*
+      #   files: # chart files globs to be included in secret without tpl
+      #     - folder_name/*
+      #   data:
+      #     name: value
+
+    # https://external-secrets.io/latest/api/externalsecret/
+    # ExternalSecrets and their Secret are named <fullname>-<component>-<name>, mounted read-only at mountPath when set
+    externalSecrets: []
+      # - name: database
+      #   mountPath: /etc/database/
+      #   refreshInterval: 1h
+      #   secretStoreRef:
+      #     kind: SecretStore | ClusterSecretStore
+      #     name: vault
+      #   data:
+      #     - secretKey: password
+      #       remoteRef:
+      #         key: database
+      #         property: password
+      #   dataFrom:
+      #     - extract:
+      #         key: database
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#persistentvolumeclaimspec-v1-core
+    # PersistentVolumeClaims mounted at their mountPath
+    volumeClaims: []
+      # - name: data
+      #   mountPath: /var/lib/data/
+      #   size: 1Gi
+      #   storageClassName: "" # cluster default when empty
+      #   accessModes: [ReadWriteOnce]
+      #   retain: false # kept on helm uninstall
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#volume-v1-core
+    volumes: []
+      # - name: ""
+      #   configMap:
+      #     name: configMapName
+      # - name: ""
+      #   emptyDir:
+      #     medium: ""
+      #     sizeLimit: 1Gi
+      # - name: ""
+      #   persistentVolumeClaim:
+      #     claimName: ""
+      #     readOnly: false
+      # - name: ""
+      #   secret:
+      #     secretName: ""
+    volumeMounts: []
+      # - mountPath: /etc/config/
+      #   name: volume[*].name
+      #   readOnly: true
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#container-v1-core
+    # Containers run in order before the component one, restartPolicy set to 'Always' makes a native sidecar (Kubernetes 1.29+)
+    initContainers: []
+      # - name: wait-db
+      #   image: busybox:1.37.0
+      #   command: [sh, -c, "until nc -z db 5432; do sleep 1; done"]
+      # - name: proxy
+      #   image: envoyproxy/envoy:v1.36.0
+      #   restartPolicy: Always
+
+    # Added to the component controller (Deployment, StatefulSet, DaemonSet, Job or CronJob), annotations rendered with tpl
+    annotations: {}
+      # reloader.stakater.com/auto: "true"
+    labels: {}
+    podAnnotations: {}
+    podLabels: {}
+      # azure.workload.identity/use: "true"
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#podsecuritycontext-v1-core
+    podSecurityContext: {}
+      # fsGroup: 2
+      # fsGroupChangePolicy: Always | OnRootMismatch
+      # runAsGroup: 1001
+      # runAsNonRoot: true
+      # runAsUser: 1001
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#securitycontext-v1-core
+    securityContext: {}
+      # allowPrivilegeEscalation: false
+      # capabilities:
+      #   add: []
+      #   drop: []
+      # privileged: false
+      # readOnlyRootFilesystem: true
+      # runAsGroup: 1001
+      # runAsNonRoot: true
+      # runAsUser: 1001
+
+    # Replaces the release serviceAccount for this component, named <fullname>-<component> when created without a name
+    serviceAccount: {}
+      # create: true
+      # annotations: {}
+      # name: ""
+      # automountServiceAccountToken: false
+      # rules: []
+    # automountServiceAccountToken: false
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#lifecycle-v1-core
+    lifecycle: {}
+      # preStop:
+      #   sleep:
+      #     seconds: 5
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#nodeselector-v1-core
+    nodeSelector: {}
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#toleration-v1-core
+    tolerations: []
+      # - effect: NoSchedule | PreferNoSchedule | NoExecute
+      #   key: ""
+      #   operator: Exists | Equal
+      #   tolerationSeconds: 600
+      #   value: ""
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#affinity-v1-core
+    affinity: {}
+
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.37/#topologyspreadconstraint-v1-core
+    # An entry without labelSelector selects the component pods
+    topologySpreadConstraints: []
+      # - maxSkew: 1
+      #   topologyKey: topology.kubernetes.io/zone
+      #   whenUnsatisfiable: ScheduleAnyway | DoNotSchedule

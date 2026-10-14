@@ -1,0 +1,60 @@
+{{- define "workload.cronjob" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+    {{- with $config.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $config.annotations }}
+  annotations:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $config.suspend }}
+  suspend: {{ . }}
+  {{- end }}
+  schedule: {{ $config.schedule | quote }}
+  {{- with $config.timeZone }}
+  timeZone: {{ . }}
+  {{- end }}
+  {{- with $config.concurrencyPolicy }}
+  concurrencyPolicy: {{ . }}
+  {{- end }}
+  {{- if hasKey $config "startingDeadlineSeconds" }}
+  startingDeadlineSeconds: {{ $config.startingDeadlineSeconds }}
+  {{- end }}
+  {{- if hasKey $config "failedJobsHistoryLimit" }}
+  failedJobsHistoryLimit: {{ $config.failedJobsHistoryLimit }}
+  {{- end }}
+  {{- if hasKey $config "successfulJobsHistoryLimit" }}
+  successfulJobsHistoryLimit: {{ $config.successfulJobsHistoryLimit }}
+  {{- end }}
+  jobTemplate:
+    spec:
+      {{- with $config.completionMode }}
+      completionMode: {{ . }}
+      {{- end }}
+      {{- with $config.completions }}
+      completions: {{ . }}
+      {{- end }}
+      {{- with $config.parallelism }}
+      parallelism: {{ . }}
+      {{- end }}
+      {{- if hasKey $config "backoffLimit" }}
+      backoffLimit: {{ $config.backoffLimit }}
+      {{- end }}
+      {{- with $config.activeDeadlineSeconds }}
+      activeDeadlineSeconds: {{ . }}
+      {{- end }}
+      {{- if hasKey $config "ttlSecondsAfterFinished" }}
+      ttlSecondsAfterFinished: {{ $config.ttlSecondsAfterFinished }}
+      {{- end }}
+      template:
+        {{- include "workload.pod" . | nindent 8 }}
+{{ end }}

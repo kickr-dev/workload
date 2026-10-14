@@ -1,0 +1,45 @@
+{{/*
+Spec of the given volumeClaims entry, shared by PersistentVolumeClaims and StatefulSets volumeClaimTemplates.
+*/}}
+{{- define "workload.volumeClaimSpec" -}}
+accessModes:
+  {{- toYaml (.accessModes | default (list "ReadWriteOnce")) | nindent 2 }}
+{{- with .storageClassName }}
+storageClassName: {{ . }}
+{{- end }}
+resources:
+  requests:
+    storage: {{ .size }}
+{{- end }}
+
+{{/*
+PersistentVolumeClaims of the component, skipped for StatefulSets since they use volumeClaimTemplates.
+*/}}
+{{- define "workload.persistentvolumeclaims" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+
+{{- $names := list -}}
+{{- range $config.volumeClaims }}
+{{- if has .name $names }}{{ fail (printf "volumeClaims name %q is duplicated" .name) }}{{ end }}
+{{- $names = append $names .name }}
+{{- end }}
+
+{{- if ne $config.kind "StatefulSet" -}}
+{{- range $config.volumeClaims -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ print $componentName "-" .name }}
+  labels:
+    {{- include "workload.labels" $ | nindent 4 }}
+  {{- if .retain }}
+  annotations:
+    helm.sh/resource-policy: keep
+  {{- end }}
+spec:
+  {{- include "workload.volumeClaimSpec" . | nindent 2 }}
+{{ end }}
+{{- end }}
+{{- end }}

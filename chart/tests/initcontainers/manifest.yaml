@@ -1,0 +1,81 @@
+---
+# Source: workload/templates/application.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-worker-name
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: worker-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workload
+      app.kubernetes.io/instance: workload
+      app.kubernetes.io/component: worker-name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: workload
+        app.kubernetes.io/instance: workload
+        app.kubernetes.io/component: worker-name
+    spec:
+      serviceAccountName: default
+      restartPolicy: Always
+      initContainers:
+        - command:
+          - sh
+          - -c
+          - until nc -z db 5432; do sleep 1; done
+          image: busybox:1.37.0
+          name: wait-db
+        - image: envoyproxy/envoy:v1.36.0
+          name: proxy
+          restartPolicy: Always
+      containers:
+        - name: worker-name
+          image: kickr-dev/kickr:0.1.0
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: workload-job-name-1
+  labels:
+    helm.sh/chart: workload-0.1.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: job-name
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: workload
+        app.kubernetes.io/instance: workload
+        app.kubernetes.io/component: job-name
+    spec:
+      serviceAccountName: default
+      restartPolicy: OnFailure
+      initContainers:
+        - args:
+          - migrate
+          envFrom:
+          - secretRef:
+              name: 'workload-job-name-db'
+          image: kickr-dev/kickr:0.1.0
+          name: migrate
+        - args:
+          - project:region:instance
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.18.0
+          name: cloud-sql-proxy
+          restartPolicy: Always
+      containers:
+        - name: job-name
+          image: kickr-dev/kickr:0.1.0

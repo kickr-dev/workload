@@ -1,0 +1,18 @@
+{{- define "workload.rolebinding" -}}
+{{- $componentName := include "workload.componentName" . -}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $componentName }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "workload.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{ end }}

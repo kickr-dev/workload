@@ -1,0 +1,32 @@
+# Add GitLab CI/CD integration job overrides here.
+
+variables:
+  KUBECONFORM_IMAGE: ghcr.io/yannh/kubeconform:v0.8.0-alpine@sha256:6b90a5f23d846140ce0194fe050b1995e546eba938f3a6bf10c039dd5e24588f
+  # renovate: datasource=github-tags packageName=kubernetes/kubernetes depName=kubernetes
+  KUBE_VERSION: 1.37.1
+
+helm-template-test:
+  stage: test
+  image:
+    name: $HELM_CLI_IMAGE
+    entrypoint: [""]
+  needs: []
+  script:
+    - ./scripts/test.sh
+
+kubeconform:
+  stage: test
+  image:
+    name: $KUBECONFORM_IMAGE
+    entrypoint: [""]
+  needs: []
+  variables:
+    # renovate: datasource=github-tags packageName=nlamirault/schema-hub depName=schema-hub
+    SCHEMA_HUB_VERSION: schema-hub-v1.9.1
+  script:
+    - >-
+      /kubeconform -strict -summary
+      -kubernetes-version $KUBE_VERSION
+      -schema-location default
+      -schema-location "https://raw.githubusercontent.com/nlamirault/schema-hub/$SCHEMA_HUB_VERSION/schemas/{{ .Group }}/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
+      chart/tests/*/manifest.yaml

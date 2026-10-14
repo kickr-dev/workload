@@ -1,0 +1,42 @@
+apiVersion: v2
+name: workload
+# BEGIN_KICKR_DESCRIPTION
+description: Helm library chart for rendering workloads and their related Kubernetes resources from values
+# END_KICKR_DESCRIPTION
+
+# A chart can be either an 'application' or a 'library' chart.
+#
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
+#
+# Library charts provide useful utilities or functions for the chart developer. They're included as
+# a dependency of application charts to inject those utilities and functions into the rendering
+# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+type: library
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0
+
+# BEGIN_KICKR_MAINTAINERS
+maintainers:
+  - name: u.kilianpaquier
+# END_KICKR_MAINTAINERS
+
+annotations:
+  artifacthub.io/links: |
+    - name: support
+      url: https://gitlab.com/kickr-dev/workload/-/work_items
+home: https://gitlab.com/kickr-dev/workload
+keywords:
+  - cronjob
+  - daemonset
+  - deployment
+  - job
+  - library
+  - statefulset
+  - workload
+kubeVersion: ">=1.23.0-0"
+sources:
+  - https://gitlab.com/kickr-dev/workload

@@ -1,0 +1,20 @@
+{{- define "workload.poddisruptionbudget" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "workload.selectorLabels" . | nindent 6 }}
+  {{- with $config.pdb.minAvailable }}
+  minAvailable: {{ . }}
+  {{- else with $config.pdb.maxUnavailable }}
+  maxUnavailable: {{ . }}
+  {{- end }}
+{{ end }}

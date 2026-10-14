@@ -1,0 +1,197 @@
+{{/*
+Pod template shared by workers, jobs and cronjobs.
+*/}}
+{{- define "workload.pod" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+
+{{- /*
+Skip volume claims from StatefulSet since they use volumeClaimTemplates while Jobs, Deployments
+and other resources mount their own PersistentVolumeClaim.
+*/ -}}
+{{- $claims := eq $config.kind "StatefulSet" | ternary list $config.volumeClaims -}}
+
+{{- /* Mount read-only the configmaps and secrets declaring a mountPath */ -}}
+{{- $configMapMounts := list -}}
+{{- range $config.configMaps }}{{ if .mountPath }}{{ $configMapMounts = append $configMapMounts . }}{{ end }}{{ end -}}
+{{- $secretMounts := list -}}
+{{- range $config.secrets }}{{ if .mountPath }}{{ $secretMounts = append $secretMounts . }}{{ end }}{{ end -}}
+{{- $externalSecretMounts := list -}}
+{{- range $config.externalSecrets }}{{ if .mountPath }}{{ $externalSecretMounts = append $externalSecretMounts . }}{{ end }}{{ end -}}
+
+{{- /* Compute ports environment variables for easy accesses in pod runtimes */ -}}
+{{- $ports := include "workload.ports" . | fromYaml -}}
+{{- $env := dict -}}
+{{- range $name, $port := $ports }}{{ $_ := set $env (print ($name | replace "-" "_" | upper) "_PORT") $port.port }}{{ end -}}
+
+{{- /* Compute pod annotations checksums to autoload rollout pods on configmaps or secrets changes */ -}}
+{{- $checksums := dict -}}
+{{- if $config.kind -}}
+{{- with $config.configMaps }}{{ $_ := set $checksums "checksum/configmaps" (include "workload.configmaps" $ | sha256sum) }}{{ end -}}
+{{- with $config.secrets }}{{ $_ := set $checksums "checksum/secrets" (include "workload.secrets" $ | sha256sum) }}{{ end -}}
+{{- end -}}
+metadata:
+  {{- with merge $checksums ($config.podAnnotations | default dict) }}
+  annotations:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "workload.selectorLabels" . | nindent 4 }}
+    {{- with $config.podLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  serviceAccountName: {{ include "workload.serviceAccountName" . }}
+  {{- if hasKey $config "automountServiceAccountToken" }}
+  automountServiceAccountToken: {{ $config.automountServiceAccountToken }}
+  {{- end }}
+  restartPolicy: {{ $config.restartPolicy }}
+  {{- if hasKey $config "terminationGracePeriodSeconds" }}
+  terminationGracePeriodSeconds: {{ $config.terminationGracePeriodSeconds }}
+  {{- end }}
+  {{- with .Values.imagePullSecrets }}
+  imagePullSecrets:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $config.initContainers }}
+  initContainers:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  containers:
+    - name: {{ .Component.Name }}
+      {{- $tag := tpl ($config.image.tag | default "") $ | default (tpl (.Values.appVersion | default "") $) | default .Chart.AppVersion }}
+      image: {{ with $config.image.registry }}{{ tpl . $ }}/{{ end }}{{ tpl $config.image.repository $ }}:{{ $tag }}
+      {{- with $config.image.pullPolicy }}
+      imagePullPolicy: {{ . }}
+      {{- end }}
+      {{- with $config.command }}
+      command:
+        {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- with $config.args }}
+      args:
+        {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- with mergeOverwrite $env ($config.env | default dict) }}
+      env:
+        {{- range $name, $value := . }}
+        - name: {{ $name }}
+          {{- if kindIs "map" $value }}
+          valueFrom:
+            {{- toYaml $value | nindent 12 }}
+          {{- else }}
+          value: {{ $value | quote }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- with $config.envFrom }}
+      envFrom:
+        {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- with $ports }}
+      ports:
+        {{- range $name, $port := . }}
+        - name: {{ $name }}
+          containerPort: {{ $port.port }}
+          protocol: {{ $port.protocol }}
+        {{- end }}
+      {{- end }}
+      {{- with $config.resources }}
+      resources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $config.livenessProbe }}
+      livenessProbe:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $config.readinessProbe }}
+      readinessProbe:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $config.startupProbe }}
+      startupProbe:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $config.lifecycle }}
+      lifecycle:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if or $config.volumeClaims $configMapMounts $secretMounts $externalSecretMounts $config.volumeMounts }}
+      volumeMounts:
+        {{- range $config.volumeClaims }}
+        - name: {{ .name }}
+          mountPath: {{ .mountPath }}
+        {{- end }}
+        {{- range $configMapMounts }}
+        - name: configmap-{{ .name }}
+          mountPath: {{ .mountPath }}
+          readOnly: true
+        {{- end }}
+        {{- range $secretMounts }}
+        - name: secret-{{ .name }}
+          mountPath: {{ .mountPath }}
+          readOnly: true
+        {{- end }}
+        {{- range $externalSecretMounts }}
+        - name: externalsecret-{{ .name }}
+          mountPath: {{ .mountPath }}
+          readOnly: true
+        {{- end }}
+        {{- with $config.volumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with $config.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if or $claims $configMapMounts $secretMounts $externalSecretMounts $config.volumes }}
+  volumes:
+    {{- range $claims }}
+    - name: {{ .name }}
+      persistentVolumeClaim:
+        claimName: {{ $componentName }}-{{ .name }}
+    {{- end }}
+    {{- range $configMapMounts }}
+    - name: configmap-{{ .name }}
+      configMap:
+        name: {{ $componentName }}-{{ .name }}
+    {{- end }}
+    {{- range $secretMounts }}
+    - name: secret-{{ .name }}
+      secret:
+        secretName: {{ $componentName }}-{{ .name }}
+    {{- end }}
+    {{- range $externalSecretMounts }}
+    - name: externalsecret-{{ .name }}
+      secret:
+        secretName: {{ $componentName }}-{{ .name }}
+    {{- end }}
+    {{- with $config.volumes }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- with $config.podSecurityContext }}
+  securityContext:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $config.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $config.tolerations }}
+  tolerations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $config.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $config.topologySpreadConstraints }}
+  {{- $labelSelector := dict "matchLabels" (include "workload.selectorLabels" $ | fromYaml) }}
+  topologySpreadConstraints:
+    {{- range . }}
+    - {{ merge (dict "labelSelector" (.labelSelector | default $labelSelector)) . | toYaml | nindent 6 | trim }}
+    {{- end }}
+  {{- end }}
+{{- end }}

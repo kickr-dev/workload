@@ -1,0 +1,54 @@
+{{- define "workload.statefulset" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+    {{- with $config.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $config.annotations }}
+  annotations:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "workload.selectorLabels" . | nindent 6 }}
+  serviceName: {{ $componentName }}-headless
+  {{- if and (hasKey $config "replicaCount") (not ($config.autoscaling | default dict).enabled) (not ($config.keda | default dict).enabled) }}
+  replicas: {{ $config.replicaCount }}
+  {{- end }}
+  {{- with $config.podManagementPolicy }}
+  podManagementPolicy: {{ . }}
+  {{- end }}
+  {{- with $config.updateStrategy }}
+  updateStrategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $config.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
+  {{- if hasKey $config "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ $config.revisionHistoryLimit }}
+  {{- end }}
+  template:
+    {{- include "workload.pod" . | nindent 4 }}
+  {{- with $config.volumeClaims }}
+  volumeClaimTemplates:
+    {{- range . }}
+    - metadata:
+        name: {{ .name }}
+      spec:
+        {{- include "workload.volumeClaimSpec" . | nindent 8 }}
+    {{- end }}
+  {{- end }}
+  {{- with $config.persistentVolumeClaimRetentionPolicy }}
+  persistentVolumeClaimRetentionPolicy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{ end }}

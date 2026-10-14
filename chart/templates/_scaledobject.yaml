@@ -1,0 +1,34 @@
+{{- define "workload.scaledobject" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+
+{{- if and $config.keda.maxReplicaCount (gt (int $config.keda.minReplicaCount) (int $config.keda.maxReplicaCount)) }}
+{{- fail (printf "keda.minReplicaCount %v is greater than maxReplicaCount %v" $config.keda.minReplicaCount $config.keda.maxReplicaCount) }}
+{{- end -}}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: {{ $config.kind }}
+    name: {{ $componentName }}
+  {{- if hasKey $config.keda "minReplicaCount" }}
+  minReplicaCount: {{ $config.keda.minReplicaCount }}
+  {{- end }}
+  {{- with $config.keda.maxReplicaCount }}
+  maxReplicaCount: {{ . }}
+  {{- end }}
+  {{- if hasKey $config.keda "pollingInterval" }}
+  pollingInterval: {{ $config.keda.pollingInterval }}
+  {{- end }}
+  {{- if hasKey $config.keda "cooldownPeriod" }}
+  cooldownPeriod: {{ $config.keda.cooldownPeriod }}
+  {{- end }}
+  triggers:
+    {{- toYaml $config.keda.triggers | nindent 4 }}
+{{ end }}

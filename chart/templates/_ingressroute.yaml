@@ -1,0 +1,33 @@
+{{- define "workload.ingressroute" -}}
+{{- $config := .Component.Values -}}
+{{- $componentName := include "workload.componentName" . -}}
+{{- $services := list (dict "name" $componentName "port" $config.ingressRoute.port) -}}
+
+{{- $port := index (include "workload.ports" . | fromYaml) $config.ingressRoute.port -}}
+{{- if not $port }}{{ fail (printf "ingressRoute.port %q isn't in ports" $config.ingressRoute.port) }}{{ end -}}
+{{- if ne $port.protocol "TCP" }}{{ fail (printf "ingressRoute.port %q isn't TCP" $config.ingressRoute.port) }}{{ end -}}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ $componentName }}
+  labels:
+    {{- include "workload.labels" . | nindent 4 }}
+  {{- with $config.ingressRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $config.ingressRoute.entryPoints }}
+  entryPoints:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  routes:
+    {{- range $config.ingressRoute.routes }}
+    - {{ tpl (merge (dict "kind" "Rule" "services" $services) . | toYaml) $ | nindent 6 | trim }}
+    {{- end }}
+  {{- with $config.ingressRoute.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{ end }}
