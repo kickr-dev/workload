@@ -7,7 +7,7 @@ include:
   # https://gitlab.com/to-be-continuous/helm
   - remote: https://gitlab.com/to-be-continuous/helm/-/raw/c974755ae7b97cd4164a8c5ac0d52d85ac0766b4/templates/gitlab-ci-helm.yml # 9.7.2
     inputs:
-      chart-dir: chart/
+      chart-dir: chart
       integ-enabled: false
       package-args: package --version "$APP_VERSION" --dependency-update
       prod-enabled: false
