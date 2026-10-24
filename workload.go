@@ -45,7 +45,7 @@ func version(readBuildInfo func() (*debug.BuildInfo, bool)) string { //nolint:re
 		return ""
 	}
 	for _, dep := range info.Deps {
-		if dep.Path == "github.com/kickr-dev/workload" {
+		if dep.Path == "gitlab.com/kickr-dev/workload" {
 			version, _, _ := strings.Cut(strings.TrimPrefix(dep.Version, "v"), "+")
 			return pseudoVersion.ReplaceAllString(version, "")
 		}

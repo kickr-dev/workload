@@ -51,7 +51,7 @@ func TestVersion(t *testing.T) {
 			actual := version(func() (*debug.BuildInfo, bool) {
 				return &debug.BuildInfo{Deps: []*debug.Module{
 					{Path: "example.com/dependency", Version: "v1.0.0"},
-					{Path: "github.com/kickr-dev/workload", Version: tc.Version},
+					{Path: "gitlab.com/kickr-dev/workload", Version: tc.Version},
 				}}, true
 			})
 

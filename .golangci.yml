@@ -299,7 +299,7 @@ formatters:
       sections:
         - standard
         - default
-        - prefix(github.com/kickr-dev/workload)
+        - prefix(gitlab.com/kickr-dev/workload)
     gofmt:
       # Apply the rewrite rules to the source before reformatting.
       # https://pkg.go.dev/cmd/gofmt

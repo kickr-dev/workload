@@ -1,4 +1,4 @@
-module github.com/kickr-dev/workload
+module gitlab.com/kickr-dev/workload
 
 go 1.25
 
