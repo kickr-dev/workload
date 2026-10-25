@@ -5,11 +5,11 @@ kind: Service
 metadata:
   name: workload-api
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: api
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -30,11 +30,11 @@ kind: Service
 metadata:
   name: workload-syslog
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: syslog
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-type: nlb
@@ -61,11 +61,11 @@ kind: Deployment
 metadata:
   name: workload-api
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: api
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -84,7 +84,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: api
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
           env:
             - name: HTTP_PORT
               value: "3000"
@@ -100,11 +100,11 @@ kind: Deployment
 metadata:
   name: workload-syslog
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: syslog
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -123,7 +123,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: syslog
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
           env:
             - name: HTTP_METRICS_PORT
               value: "9090"
@@ -144,11 +144,11 @@ kind: HTTPRoute
 metadata:
   name: workload-api
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: api
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   parentRefs:

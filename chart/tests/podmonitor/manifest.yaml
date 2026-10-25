@@ -5,11 +5,11 @@ kind: Service
 metadata:
   name: workload-statefulset-name-headless
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: statefulset-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
     service.kubernetes.io/headless: ""
 spec:
@@ -33,11 +33,11 @@ kind: Service
 metadata:
   name: workload-statefulset-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: statefulset-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -58,11 +58,11 @@ kind: Service
 metadata:
   name: workload-worker-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -87,11 +87,11 @@ kind: Deployment
 metadata:
   name: workload-worker-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -110,7 +110,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
           env:
             - name: HTTP_METRICS_PORT
               value: "9090"
@@ -131,11 +131,11 @@ kind: StatefulSet
 metadata:
   name: workload-statefulset-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: statefulset-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -155,7 +155,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: statefulset-name
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
           env:
             - name: HTTP_METRICS_PORT
               value: "9090"
@@ -171,11 +171,11 @@ kind: PodMonitor
 metadata:
   name: workload-statefulset-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: statefulset-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -193,11 +193,11 @@ kind: PodMonitor
 metadata:
   name: workload-worker-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
     release: monitoring
 spec:

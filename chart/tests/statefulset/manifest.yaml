@@ -5,11 +5,11 @@ kind: Service
 metadata:
   name: workload-worker-name-headless
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
     service.kubernetes.io/headless: ""
 spec:
@@ -33,11 +33,11 @@ kind: Service
 metadata:
   name: workload-worker-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -58,11 +58,11 @@ kind: StatefulSet
 metadata:
   name: workload-worker-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
     team: platform
 spec:
@@ -91,7 +91,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
           env:
             - name: HTTP_PORT
               value: "3000"

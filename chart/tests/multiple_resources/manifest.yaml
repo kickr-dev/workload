@@ -5,11 +5,11 @@ kind: Deployment
 metadata:
   name: workload-worker-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -28,7 +28,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -37,11 +37,11 @@ kind: Deployment
 metadata:
   name: workload-worker-name-2
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name-2
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -60,7 +60,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name-2
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -69,11 +69,11 @@ kind: Job
 metadata:
   name: workload-job-name-1
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: job-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   template:
@@ -87,7 +87,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: job-name
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -96,11 +96,11 @@ kind: Job
 metadata:
   name: workload-job-name-2-1
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: job-name-2
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   template:
@@ -114,7 +114,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: job-name-2
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -123,11 +123,11 @@ kind: CronJob
 metadata:
   name: workload-cron-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: cron-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   schedule: "0 0 * * *"
@@ -144,7 +144,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: cron-name
-              image: kickr-dev/kickr:0.1.0
+              image: kickr-dev/kickr:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -153,11 +153,11 @@ kind: CronJob
 metadata:
   name: workload-cron-name-2
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: cron-name-2
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   schedule: "0 0 * * *"
@@ -174,4 +174,4 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: cron-name-2
-              image: kickr-dev/kickr:0.1.0
+              image: kickr-dev/kickr:0.0.0

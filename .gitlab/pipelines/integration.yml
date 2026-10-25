@@ -16,15 +16,6 @@ include:
       bats-enabled: false
       shellcheck-files: "**/*.*sh"
 
-  # Go template
-  # https://gitlab.com/to-be-continuous/golang
-  - remote: https://gitlab.com/to-be-continuous/golang/-/raw/6198ec5ccac22639a2e739437f0e922cd3f9f178/templates/gitlab-ci-golang.yml # 4.17.2
-    inputs:
-      build-mode: modules
-      ci-lint-args: --config=.golangci.yml --timeout=300s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
-      sbom-opts: -licenses -assert-licenses
-      test-flags: -v -coverpkg=./... -covermode=count -timeout=30s
-
   # Plumber template
   # https://gitlab.com/getplumber/plumber
   - remote: https://gitlab.com/getplumber/plumber/-/raw/5f5d5d335b3bf1fd872d7489ebb1f4f591092958/templates/plumber.yml # v0.7.4
@@ -37,22 +28,9 @@ include:
       mr_comment: false
       score_point: true
       score_push: true
-  - local: .gitlab/integration.overrides.yml
 
 bash-shellcheck:
   needs: []
-
-go-build-test:
-  needs: []
-
-go-ci-lint:
-  needs: []
-
-go-govulncheck:
-  allow_failure: true
-
-go-mod-outdated:
-  rules: [when: never]
 
 plumber:
   rules:

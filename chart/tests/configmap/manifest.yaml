@@ -5,11 +5,11 @@ kind: ConfigMap
 metadata:
   name: workload-job-name-config
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: job-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 data:
   name: value
@@ -21,11 +21,11 @@ kind: ConfigMap
 metadata:
   name: workload-worker-name-extra
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 data:
   extra.conf: value
@@ -37,11 +37,11 @@ kind: ConfigMap
 metadata:
   name: workload-worker-name-config
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 data:
   text_tpl.txt: |2-
@@ -69,11 +69,11 @@ kind: Deployment
 metadata:
   name: workload-worker-name
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: worker-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -84,7 +84,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmaps: fdce7e0cdefa4114e824f2bf1fb41474fe7702a5a752894349631f33000e2bfe
+        checksum/configmaps: 7e204dc946c5e7b208ecfefe0733f9e535d99ee6f2c0d7b66a372436cfc334ad
         checksum/custom: 'db26993a5207d84a5c8ba5d10534d8c1a0b8cd892e8ce1b7dfc37a9452d1a51e'
       labels:
         app.kubernetes.io/name: workload
@@ -95,7 +95,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
           volumeMounts:
             - name: configmap-extra
               mountPath: /etc/extra/
@@ -124,11 +124,11 @@ kind: Job
 metadata:
   name: workload-job-name-1
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: job-name
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   template:
@@ -142,7 +142,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: job-name
-          image: kickr-dev/kickr:0.1.0
+          image: kickr-dev/kickr:0.0.0
           volumeMounts:
             - name: configmap-config
               mountPath: /etc/config/

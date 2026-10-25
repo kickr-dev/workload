@@ -7,7 +7,6 @@
 [![GitLab Issues](https://img.shields.io/gitlab/issues/open/kickr-dev%2Fworkload?gitlab_url=https%3A%2F%2Fgitlab.com&style=for-the-badge)](https://gitlab.com/kickr-dev/workload/-/work_items)
 [![GitLab License](https://img.shields.io/gitlab/license/kickr-dev%2Fworkload?gitlab_url=https%3A%2F%2Fgitlab.com&style=for-the-badge)](https://gitlab.com/kickr-dev/workload/-/blob/HEAD/LICENSE)
 [![GitLab CICD](https://img.shields.io/gitlab/pipeline-status/kickr-dev%2Fworkload?gitlab_url=https%3A%2F%2Fgitlab.com&branch=main&style=for-the-badge)](https://gitlab.com/kickr-dev/workload/-/pipelines?ref=main)
-[![Go Version](https://img.shields.io/gitlab/go-mod/go-version/kickr-dev/workload?style=for-the-badge)](https://gitlab.com/kickr-dev/workload/-/blob/HEAD/go.mod)
 [![Plumber Score](https://img.shields.io/endpoint?url=https%3A%2F%2Fscore.getplumber.io%2Fgitlab.com%2Fkickr-dev%2Fworkload.json&style=for-the-badge)](https://score.getplumber.io/gitlab.com/kickr-dev/workload)
 <!-- END_KICKR_BADGES -->
 

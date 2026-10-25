@@ -5,11 +5,11 @@ kind: CronJob
 metadata:
   name: workload-purge
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: purge
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   schedule: "*/15 * * * *"
@@ -29,7 +29,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: purge
-              image: kickr-dev/kickr:0.1.0
+              image: kickr-dev/kickr:0.0.0
               args:
                 - purge
                 - --older-than=720h
@@ -41,11 +41,11 @@ kind: CronJob
 metadata:
   name: workload-report
   labels:
-    helm.sh/chart: workload-0.1.0
+    helm.sh/chart: workload-0.0.0
     app.kubernetes.io/name: workload
     app.kubernetes.io/instance: workload
     app.kubernetes.io/component: report
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.0.0"
     app.kubernetes.io/managed-by: Helm
     team: platform
   annotations:
@@ -75,6 +75,6 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: report
-              image: kickr-dev/kickr:0.1.0
+              image: kickr-dev/kickr:0.0.0
               args:
                 - report

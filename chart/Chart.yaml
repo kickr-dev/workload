@@ -4,20 +4,16 @@ name: workload
 description: Helm library chart for rendering workloads and their related Kubernetes resources from values
 # END_KICKR_DESCRIPTION
 
-# A chart can be either an 'application' or a 'library' chart.
-#
-# Application charts are a collection of templates that can be packaged into versioned archives
-# to be deployed.
-#
-# Library charts provide useful utilities or functions for the chart developer. They're included as
-# a dependency of application charts to inject those utilities and functions into the rendering
-# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+# Chart type, either 'application' or 'library'.
+#   - An application chart is packaged into a versioned archive and deployed.
+#   - A library chart only shares helpers with the application charts depending on it, so it can't be deployed.
 type: library
 
-# This is the chart version. This version number should be incremented each time you make changes
-# to the chart and its templates, including the app version.
-# Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.0
+# Chart version, following Semantic Versioning (https://semver.org/).
+# Bump it on any change to the chart, its templates or its app version.
+#
+# When using kickr generated CI/CD, leave the placeholder as is since it's set to the release version when packaging.
+version: 0.0.0
 
 # BEGIN_KICKR_MAINTAINERS
 maintainers:

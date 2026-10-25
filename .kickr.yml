@@ -5,7 +5,6 @@ description: Helm library chart for rendering workloads and their related Kubern
 gitlab:
   options:
     - kickr
-    - overrides:deployment
     - overrides:integration
   release: {}
 helm:
