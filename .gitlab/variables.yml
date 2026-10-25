@@ -10,8 +10,9 @@ variables:
 
   TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 
-  HELM_RELEASE_REGISTRY: oci://registry.gitlab.com/kickr-dev/workload
-  HELM_SNAPSHOT_REGISTRY: ${HELM_RELEASE_REGISTRY}/snapshot
+  # helm push always appends the chart name to the registry reference
+  HELM_RELEASE_REGISTRY: oci://registry.gitlab.com/kickr-dev
+  HELM_SNAPSHOT_REGISTRY: oci://registry.gitlab.com/kickr-dev/workload/snapshot
   HELM_PUBLISH_URL: $HELM_RELEASE_REGISTRY
 
   ####################################

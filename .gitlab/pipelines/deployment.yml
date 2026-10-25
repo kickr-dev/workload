@@ -14,6 +14,7 @@ include:
       publish-method: auto
       publish-on: tag
       publish-snapshot-enabled: true
+      publish-snapshot-suffix: $CI_COMMIT_REF_SLUG
       publish-strategy: manual
       review-enabled: false
       scripts-dir: chart/hooks
