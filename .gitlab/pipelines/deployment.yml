@@ -17,7 +17,7 @@ include:
       publish-strategy: manual
       review-enabled: false
       scripts-dir: chart/hooks
-      semrel-release-disabled: true # avoid too much dependency on semantic-release
+      semrel-release-disabled: false
       staging-enabled: false
       test-enabled: false
 
