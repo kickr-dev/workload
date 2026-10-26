@@ -21,7 +21,10 @@ maintainers:
 # END_KICKR_MAINTAINERS
 
 annotations:
+  artifacthub.io/category: integration-delivery
   artifacthub.io/links: |
+    - name: changelog
+      url: https://gitlab.com/kickr-dev/workload/-/blob/main/CHANGELOG.md
     - name: support
       url: https://gitlab.com/kickr-dev/workload/-/work_items
 home: https://gitlab.com/kickr-dev/workload
