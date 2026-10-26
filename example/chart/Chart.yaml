@@ -18,6 +18,9 @@ version: 0.0.0
 appVersion: "0.0.0"
 
 dependencies:
+  # - name: workload
+  #   version: "X.Y.Z"
+  #   repository: oci://registry.gitlab.com/kickr-dev
   - name: workload
     version: "*"
     repository: file://../../chart

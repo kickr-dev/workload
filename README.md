@@ -64,8 +64,11 @@ so you add it as a dependency of your application chart and let a single templat
    dependencies:
      - name: workload
        version: x.y.z # replace with a released version
-       repository: oci://registry.gitlab.com/kickr-dev/workload
+       repository: oci://registry.gitlab.com/kickr-dev
    ```
+
+   Released versions are listed on [Artifact Hub](https://artifacthub.io/packages/helm/kickr-workload/workload)
+   and in the [changelog](https://gitlab.com/kickr-dev/workload/-/blob/main/CHANGELOG.md).
 
 2. Create a template, for instance templates/application.yaml, that includes the library:
 
