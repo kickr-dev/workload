@@ -1,3 +1,14 @@
+## [0.2.0](https://gitlab.com/kickr-dev/workload/compare/v0.1.0...v0.2.0) (2026-10-26)
+
+### Features
+
+* **chart:** add artifact hub category and changelog link ([6d5c8f3](https://gitlab.com/kickr-dev/workload/commit/6d5c8f3d82db7edf87cb139847740117a1e141eb))
+* **schema:** inline refs and flatten component properties for artifact hub ([168e047](https://gitlab.com/kickr-dev/workload/commit/168e047f3dc3a7e62bf260b27ad06c09dd91fd12))
+
+### Documentation
+
+* **readme:** fix oci dependency repository and link artifact hub ([cc16c30](https://gitlab.com/kickr-dev/workload/commit/cc16c30a282a75159bef8718158515fa42d271b2))
+
 ## [0.1.0](https://gitlab.com/kickr-dev/workload/compare/v0.0.1...v0.1.0) (2026-10-26)
 
 ### Features
