@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
 
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: https://raw.githubusercontent.com/kickr-dev/workload/main/schema/values.schema.json
+$id: https://gitlab.com/kickr-dev/workload/-/raw/main/chart/values.schema.json
 
 title: Helm values for kickr workload chart
 description: Values describes the Helm values of charts rendered with kickr workload chart. Values of dependencies are left unchecked.
@@ -311,6 +311,7 @@ $defs:
           - schedule
         properties:
           restartPolicy:
+            description: restartPolicy of the pods, either OnFailure or Never since they run to completion.
             enum: [OnFailure, Never]
             default: OnFailure
           schedule:
@@ -363,6 +364,7 @@ $defs:
           required: [completions]
       - properties:
           restartPolicy:
+            description: restartPolicy of the pods, either OnFailure or Never since they run to completion.
             enum: [OnFailure, Never]
             default: OnFailure
           suspend:
@@ -622,6 +624,7 @@ $defs:
 
   componentName:
     type: string
+    description: componentName is the name of a worker, job or cron, kept short since it is part of the resources names.
     pattern: ^[a-z0-9]+(-[a-z0-9]+)*$
     maxLength: 20
 
