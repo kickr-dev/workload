@@ -1,6 +1,5 @@
 # yaml-language-server: $schema=values.schema.json
-# Example only, the library never reads these values.
-# Declare them in your application chart values.yaml.
+# Example only, the library never reads these values, declare them in your application chart values.yaml.
 
 imagePullSecrets: []
 
@@ -50,8 +49,8 @@ workers:
     # terminationGracePeriodSeconds: 30
 
     image:
-      registry: ""
-      repository: registry.example.com/app
+      registry: registry.example.com
+      repository: example/app
       pullPolicy: ""
       # Overrides the image tag whose default is the chart appVersion, '<tag>@sha256:<hex>' pins a digest.
       tag: ""
@@ -431,8 +430,8 @@ jobs:
     # terminationGracePeriodSeconds: 30
 
     image:
-      registry: ""
-      repository: registry.example.com/app
+      registry: registry.example.com
+      repository: example/app
       pullPolicy: ""
       # Overrides the image tag whose default is the chart appVersion.
       tag: ""
@@ -631,9 +630,9 @@ crons:
     # terminationGracePeriodSeconds: 30
 
     image:
-      registry: ""
+      registry: registry.example.com
       # Rendered with tpl, e.g. '{{ .Values.image.repository }}' to reuse a repository declared once in your values
-      repository: registry.example.com/app
+      repository: example/app
       pullPolicy: ""
       # Overrides the image tag whose default is the chart appVersion, '<tag>@sha256:<hex>' pins a digest.
       tag: ""

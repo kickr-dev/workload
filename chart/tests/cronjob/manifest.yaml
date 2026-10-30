@@ -29,7 +29,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: purge
-              image: kickr-dev/kickr:0.0.0
+              image: example/app:0.0.0
               args:
                 - purge
                 - --older-than=720h
@@ -75,6 +75,6 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: report
-              image: kickr-dev/kickr:0.0.0
+              image: example/app:0.0.0
               args:
                 - report

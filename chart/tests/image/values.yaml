@@ -11,7 +11,7 @@ workers:
     restartPolicy: Always
     image:
       registry: registry.example.com
-      repository: kickr-dev/kickr
+      repository: example/app
       pullPolicy: IfNotPresent
       tag: 4.5.6
 
@@ -19,4 +19,4 @@ jobs:
   job-name:
     restartPolicy: OnFailure
     image:
-      repository: kickr-dev/kickr
+      repository: example/app

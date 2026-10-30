@@ -15,7 +15,7 @@ workers:
     progressDeadlineSeconds: 300
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     annotations:
       reloader.stakater.com/auto: "true"
       kubernetes.io/change-cause: helm release {{ .Release.Name }} revision {{ .Release.Revision }}

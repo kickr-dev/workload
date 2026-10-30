@@ -55,7 +55,7 @@ spec:
       terminationGracePeriodSeconds: 45
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:1.0.0@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          image: example/app:1.0.0@sha256:0000000000000000000000000000000000000000000000000000000000000000
           command:
             - /bin/kickr
           args:

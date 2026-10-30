@@ -57,7 +57,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: consumer
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
           env:
             - name: HTTP_METRICS_PORT
               value: "9090"
@@ -96,7 +96,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
           env:
             - name: GRPC_PORT
               value: "4000"

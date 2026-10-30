@@ -8,19 +8,14 @@ include:
   - remote: https://gitlab.com/to-be-continuous/helm/-/raw/c974755ae7b97cd4164a8c5ac0d52d85ac0766b4/templates/gitlab-ci-helm.yml # 9.7.2
     inputs:
       chart-dir: chart
-      integ-enabled: false
       package-args: package --dependency-update
-      prod-enabled: false
-      publish-method: auto
+      scripts-dir: chart/hooks
+      semrel-release-disabled: false
+      test-enabled: false
       publish-on: tag
       publish-snapshot-enabled: true
       publish-snapshot-suffix: $CI_COMMIT_REF_SLUG
       publish-strategy: manual
-      review-enabled: false
-      scripts-dir: chart/hooks
-      semrel-release-disabled: false
-      staging-enabled: false
-      test-enabled: false
 
 .artifacthub:
   stage: publish
@@ -37,6 +32,16 @@ include:
 
 helm-lint:
   needs: []
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    # see https://gitlab.com/to-be-continuous/helm/-/blob/main/templates/gitlab-ci-helm.yml?ref_type=heads#L1303
+    - if: '$HELM_LINT_DISABLED == "true"'
+      when: never
+    - exists:
+        - "$HELM_CHART_DIR/Chart.yaml"
+        # workaround https://gitlab.com/gitlab-org/gitlab/-/issues/451764
+        - "Chart.yaml"
 
 helm-package:
   variables:

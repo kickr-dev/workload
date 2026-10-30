@@ -6,7 +6,7 @@ workers:
     replicaCount: 3
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     keda:
       enabled: true
       minReplicaCount: 1

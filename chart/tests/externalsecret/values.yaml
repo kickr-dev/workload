@@ -5,7 +5,7 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     envFrom:
       - secretRef:
           name: '{{ include "workload.componentName" . }}-env'

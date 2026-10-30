@@ -11,6 +11,6 @@ workers:
     revisionHistoryLimit: 5
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     annotations:
       reloader.stakater.com/auto: "true"

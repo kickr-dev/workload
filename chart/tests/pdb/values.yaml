@@ -6,7 +6,7 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     pdb:
       enabled: true
       minAvailable: 50%
@@ -15,7 +15,7 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     pdb:
       enabled: true
       maxUnavailable: 1

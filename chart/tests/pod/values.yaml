@@ -5,7 +5,7 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     env:
       BINARY_NAME: worker-name
       LOG_JSON: true

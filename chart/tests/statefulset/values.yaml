@@ -11,7 +11,7 @@ workers:
     podManagementPolicy: Parallel
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     ports:
       http: 3000
     volumeClaims:

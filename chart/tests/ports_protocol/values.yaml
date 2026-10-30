@@ -6,7 +6,7 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     ports:
       http: 3000
     service:
@@ -23,7 +23,7 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     ports:
       syslog:
         port: 5514

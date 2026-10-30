@@ -17,5 +17,5 @@ REF_PARSER_VERSION="16.0.5"
 npm install --silent --no-audit --no-fund --prefix "$tmpdir" "@apidevtools/json-schema-ref-parser@$REF_PARSER_VERSION"
 
 # node resolves modules from the script directory
-cp "$dir/scripts/schema.mjs" "$tmpdir/schema.mjs"
+cp "$dir/scripts/js/schema.mjs" "$tmpdir/schema.mjs"
 node "$tmpdir/schema.mjs" "$dir/schema/values.schema.yml" "$dir/chart/values.schema.json"

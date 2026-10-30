@@ -28,7 +28,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -60,7 +60,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name-2
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -87,7 +87,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: job-name
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -114,7 +114,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: job-name-2
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -144,7 +144,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: cron-name
-              image: kickr-dev/kickr:0.0.0
+              image: example/app:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -174,4 +174,4 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: cron-name-2
-              image: kickr-dev/kickr:0.0.0
+              image: example/app:0.0.0

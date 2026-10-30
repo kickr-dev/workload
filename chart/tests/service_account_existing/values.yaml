@@ -9,6 +9,6 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     # the pod never calls the Kubernetes API, so the shared account token isn't mounted
     automountServiceAccountToken: false

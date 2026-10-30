@@ -78,7 +78,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
           env:
             - name: HTTP_PORT
               value: "3000"
@@ -117,7 +117,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name-2
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
           env:
             - name: HTTP_PORT
               value: "3000"

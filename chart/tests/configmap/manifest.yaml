@@ -50,7 +50,7 @@ data:
     Some text that should be in manifest
   multiline: |-
     Some multiple data
-    with tpl need kickr-dev/kickr
+    with tpl need example/app
   name: value
 
 ---
@@ -84,7 +84,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmaps: 7e204dc946c5e7b208ecfefe0733f9e535d99ee6f2c0d7b66a372436cfc334ad
+        checksum/configmaps: 50e32d55214cc46758c381e35132a0bce51271b5752de30e88b60d4745cbedcf
         checksum/custom: 'db26993a5207d84a5c8ba5d10534d8c1a0b8cd892e8ce1b7dfc37a9452d1a51e'
       labels:
         app.kubernetes.io/name: workload
@@ -95,7 +95,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
           volumeMounts:
             - name: configmap-extra
               mountPath: /etc/extra/
@@ -142,7 +142,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: job-name
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
           volumeMounts:
             - name: configmap-config
               mountPath: /etc/config/

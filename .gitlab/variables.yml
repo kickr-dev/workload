@@ -21,13 +21,13 @@ variables:
   #
   ####################################
 
-  SEMREL_IMAGE: docker.io/library/node:26.12.1-alpine3.23@sha256:bc2b334006f15c7167bbeb2f08f28c2df883f7594a0470e04454ebe7560cfe68
+  SEMREL_IMAGE: docker.io/library/node:26.13.0-alpine3.23@sha256:e6c03d42b46af3b1e98207e59f06a43cfe5efd3ec4b4d3d9802bddf04f833374
   BASH_BATS_IMAGE: docker.io/bats/bats:1.14.0@sha256:5322b877351fda0cc435de8c6116de7d0a2ec79d7c680132a0ef329a633bc66f
   BASH_SHELLCHECK_IMAGE: docker.io/koalaman/shellcheck-alpine:v0.11.0@sha256:9955be09ea7f0dbf7ae942ac1f2094355bb30d96fffba0ec09f5432207544002
-  KICKR_IMAGE: ghcr.io/jdx/mise:2026.10.17@sha256:a80f941369a7cc3af35d6eca41c63756f6a243367b52bdeda481954cd6fca0e2
+  KICKR_IMAGE: ghcr.io/jdx/mise:2026.10.24@sha256:3792f303ca3bef928e821a37b1b11fcb0e0b1d47bce9ba419842ce9d2b5123bc
   ORAS_IMAGE: ghcr.io/oras-project/oras:v1.3.6@sha256:9cfb578be975b762fd898b9d004243d8003aeb807a3e15b2ed212cdd1326c9eb
-  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.4@sha256:5d198d3d939535f4fbf1cca7ee1b0ad80577a74dd3d27377b3ec0e012652dd56
-  PRE_COMMIT_IMAGE: docker.io/library/python:3.15.0-alpine3.23@sha256:d64bc17e0dff27c5c4a31f616450d032aa73d6325855127ce3a305bf1384c8d5
+  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.11@sha256:97176cdc9cec68f69d391554f997ec04d84efbcf46278c01b61f54c2cd2df019
+  PRE_COMMIT_IMAGE: docker.io/library/python:3.15.1-alpine3.23@sha256:cb295b554dbbea09b2c0e6e6d9ce55f051347c902fbb611e618c071addfb30a3
 
   HELM_CLI_IMAGE: docker.io/alpine/helm:4.3.1@sha256:e3f8d5c462d75470fbb1fce79ad5c20063657096d1f98c0fcea869e2600e2e5e
   HELM_KUBE_SCORE_IMAGE: docker.io/zegl/kube-score:v1.20.0@sha256:ac4c43ad560af905d66f6bf57b0937c591332e6dbf2167c31193a13b4695ab97

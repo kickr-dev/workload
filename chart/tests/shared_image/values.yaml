@@ -3,7 +3,7 @@
 # not read by the library, shared by components through templating
 image: &image
   registry: registry.example.com
-  repository: kickr-dev/kickr
+  repository: example/app
   pullPolicy: IfNotPresent
 
 appVersion: 1.2.3

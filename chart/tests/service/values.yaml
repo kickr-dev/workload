@@ -5,7 +5,7 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     ports:
       http: 3000
       grpc: 4000
@@ -15,7 +15,7 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     ports:
       http-metrics: 9090
     service:

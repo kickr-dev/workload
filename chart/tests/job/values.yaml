@@ -16,5 +16,5 @@ jobs:
       team: platform
     restartPolicy: Never
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     args: [reindex, --shard=$(JOB_COMPLETION_INDEX)]

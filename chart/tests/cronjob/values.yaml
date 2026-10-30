@@ -21,7 +21,7 @@ crons:
       team: platform
     restartPolicy: OnFailure
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     args: [report]
 
   # frequent purge, not retried since the next run catches up, and its jobs removed once done
@@ -32,5 +32,5 @@ crons:
     ttlSecondsAfterFinished: 600
     restartPolicy: Never
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     args: [purge, --older-than=720h]

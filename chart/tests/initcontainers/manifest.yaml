@@ -38,7 +38,7 @@ spec:
           restartPolicy: Always
       containers:
         - name: worker-name
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
 
 ---
 # Source: workload/templates/application.yaml
@@ -69,7 +69,7 @@ spec:
           envFrom:
           - secretRef:
               name: 'workload-job-name-db'
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0
           name: migrate
         - args:
           - project:region:instance
@@ -78,4 +78,4 @@ spec:
           restartPolicy: Always
       containers:
         - name: job-name
-          image: kickr-dev/kickr:0.0.0
+          image: example/app:0.0.0

@@ -5,17 +5,17 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
 
 jobs:
   job-name:
     restartPolicy: OnFailure
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
 
 crons:
   cron-name:
     schedule: "0 0 * * *"
     restartPolicy: OnFailure
     image:
-      repository: kickr-dev/kickr
+      repository: example/app

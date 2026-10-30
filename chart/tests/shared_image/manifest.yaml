@@ -28,7 +28,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: worker-name
-          image: registry.example.com/kickr-dev/kickr:1.2.3
+          image: registry.example.com/example/app:1.2.3
           imagePullPolicy: IfNotPresent
 
 ---
@@ -56,7 +56,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: job-name
-          image: registry.example.com/kickr-dev/kickr:1.2.3
+          image: registry.example.com/example/app:1.2.3
           imagePullPolicy: IfNotPresent
 
 ---
@@ -87,4 +87,4 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: cron-name
-              image: kickr-dev/kickr:0.0.0
+              image: example/app:0.0.0

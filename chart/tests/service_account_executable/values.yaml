@@ -5,7 +5,7 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     serviceAccount:
       create: true
       annotations:
@@ -19,7 +19,7 @@ jobs:
   job-name:
     restartPolicy: OnFailure
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     serviceAccount:
       create: false
       name: existing-service-account
@@ -29,7 +29,7 @@ crons:
     schedule: "0 0 * * *"
     restartPolicy: OnFailure
     image:
-      repository: kickr-dev/kickr
+      repository: example/app
     serviceAccount:
       create: true
       name: custom-service-account-name
