@@ -79,6 +79,19 @@ Ports of the component by name as {port, protocol, servicePort}, read with fromY
 {{- end }}
 
 {{/*
+Helm hook annotations of the given job hook, with its weight shifted by offset, read with fromYaml.
+*/}}
+{{- define "workload.hookAnnotations" -}}
+{{- with .hook -}}
+helm.sh/hook: {{ join "," .events }}
+helm.sh/hook-weight: {{ add (.weight | default 0) $.offset | quote }}
+{{- with .deletePolicies }}
+helm.sh/hook-delete-policy: {{ join "," . }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create the name of the service account to use, the component one when it declares its own serviceAccount.
 */}}
 {{- define "workload.serviceAccountName" -}}

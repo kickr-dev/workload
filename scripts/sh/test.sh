@@ -39,7 +39,8 @@ for casedir in "$dir"/chart/tests/*; do
     fi
 
     manifest="$tmpdir/$name.yaml"
-    if ! helm template workload "$chart" --namespace default --kube-version "$KUBE_VERSION" --values "$casedir/values.yaml" > "$manifest"; then
+    # helm ends hooks with a blank line, dropped to match end-of-file-fixer
+    if ! helm template workload "$chart" --namespace default --kube-version "$KUBE_VERSION" --values "$casedir/values.yaml" | sed '${/^$/d}' > "$manifest"; then
       echo "template failed: $name" >&2
       exit 1
     fi

@@ -5,15 +5,20 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ $componentName }}-{{ .Release.Revision }}
+  name: {{ $componentName }}{{ if not $config.hook }}-{{ .Release.Revision }}{{ end }}
   labels:
     {{- include "workload.labels" . | nindent 4 }}
     {{- with $config.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with $config.annotations }}
+  {{- if or $config.hook $config.annotations }}
   annotations:
+    {{- with $config.hook }}
+    {{- include "workload.hookAnnotations" (dict "hook" . "offset" 0) | nindent 4 }}
+    {{- end }}
+    {{- with $config.annotations }}
     {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
   {{- end }}
 spec:
   {{- with $config.suspend }}

@@ -17,6 +17,10 @@ metadata:
   name: {{ print $componentName "-" .name }}
   labels:
     {{- include "workload.labels" $ | nindent 4 }}
+  {{- if $config.hook }}
+  annotations:
+    {{- include "workload.hookAnnotations" (dict "hook" $config.hook "offset" -1) | nindent 4 }}
+  {{- end }}
 data:
 {{- range .templates }}
   {{- range $path, $_ := $.Files.Glob . }}

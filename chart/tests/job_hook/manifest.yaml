@@ -1,0 +1,171 @@
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workload-job-name
+  labels:
+    helm.sh/chart: workload-0.0.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: job-name
+    app.kubernetes.io/version: "0.0.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "4"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    eks.amazonaws.com/role-arn: arn:aws:iam::000000000000:role/migrate
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: workload-job-name-credentials
+  labels:
+    helm.sh/chart: workload-0.0.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: job-name
+    app.kubernetes.io/version: "0.0.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "4"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+type: Opaque
+data:
+  DATABASE_USER: bWlncmF0ZQ==
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workload-job-name-config
+  labels:
+    helm.sh/chart: workload-0.0.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: job-name
+    app.kubernetes.io/version: "0.0.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "4"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+data:
+  LOG_LEVEL: info
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: workload-job-name
+  labels:
+    helm.sh/chart: workload-0.0.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: job-name
+    app.kubernetes.io/version: "0.0.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "4"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+rules:
+  - apiGroups:
+    - ""
+    resources:
+    - configmaps
+    verbs:
+    - get
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: workload-job-name
+  labels:
+    helm.sh/chart: workload-0.0.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: job-name
+    app.kubernetes.io/version: "0.0.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "4"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: workload-job-name
+subjects:
+  - kind: ServiceAccount
+    name: workload-job-name
+    namespace: default
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: workload-job-name
+  labels:
+    helm.sh/chart: workload-0.0.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: job-name
+    app.kubernetes.io/version: "0.0.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    team: platform
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: workload
+        app.kubernetes.io/instance: workload
+        app.kubernetes.io/component: job-name
+    spec:
+      serviceAccountName: workload-job-name
+      restartPolicy: OnFailure
+      containers:
+        - name: job-name
+          image: example/app:0.0.0
+
+---
+# Source: workload/templates/application.yaml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: workload-job-name-env
+  labels:
+    helm.sh/chart: workload-0.0.0
+    app.kubernetes.io/name: workload
+    app.kubernetes.io/instance: workload
+    app.kubernetes.io/component: job-name
+    app.kubernetes.io/version: "0.0.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "4"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  secretStoreRef:
+    kind: SecretStore
+    name: vault
+  target:
+    name: workload-job-name-env
+    creationPolicy: Owner
+  dataFrom:
+    - extract:
+        key: database

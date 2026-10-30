@@ -365,6 +365,31 @@ $defs:
     properties:
       suspend:
         $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.0/_definitions.json#/definitions/io.k8s.api.batch.v1.JobSpec/properties/suspend
+      hook:
+        type: object
+        additionalProperties: false
+        description: |
+          hook runs the job as a Helm hook, its ConfigMaps, Secrets, ExternalSecrets, ServiceAccount, Role and RoleBinding hooked one weight before it.
+          The job is then named without the release revision.
+        required: [events]
+        properties:
+          events:
+            type: array
+            description: events are the Helm hooks running the job, rendered as helm.sh/hook.
+            minItems: 1
+            uniqueItems: true
+            items:
+              enum: [pre-install, post-install, pre-delete, post-delete, pre-upgrade, post-upgrade, pre-rollback, post-rollback, test]
+          weight:
+            type: integer
+            description: weight orders the job among the hooks of the same event, rendered as helm.sh/hook-weight.
+            default: 0
+          deletePolicies:
+            type: array
+            description: deletePolicies define when the hook resources are deleted, rendered as helm.sh/hook-delete-policy. Defaults to before-hook-creation.
+            uniqueItems: true
+            items:
+              enum: [before-hook-creation, hook-succeeded, hook-failed]
 
   worker:
     $ref: "#/$defs/resource"

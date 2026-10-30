@@ -8,6 +8,10 @@ metadata:
   name: {{ $componentName }}
   labels:
     {{- include "workload.labels" . | nindent 4 }}
+  {{- if and .Component .Component.Values.hook }}
+  annotations:
+    {{- include "workload.hookAnnotations" (dict "hook" .Component.Values.hook "offset" -1) | nindent 4 }}
+  {{- end }}
 rules:
   {{- toYaml $serviceAccount.rules | nindent 2 }}
 {{ end }}

@@ -27,6 +27,7 @@ and the library renders the Deployments, Jobs and CronJobs that run them, along 
   - [Keeping secrets out of your values](#keeping-secrets-out-of-your-values)
   - [Persistence](#persistence)
   - [Init containers and sidecars](#init-containers-and-sidecars)
+  - [Running a job as a Helm hook](#running-a-job-as-a-helm-hook)
   - [Images](#images)
   - [Ports and environment variables](#ports-and-environment-variables)
   - [Scaling](#scaling)
@@ -86,7 +87,8 @@ so you add it as a dependency of your application chart and let a single templat
        kind: Deployment
        restartPolicy: Always
        image:
-         repository: registry.example.com/api
+         registry: registry.example.com
+         repository: api
        ports:
          http: 8080
 
@@ -94,14 +96,16 @@ so you add it as a dependency of your application chart and let a single templat
      migrate:
        restartPolicy: OnFailure
        image:
-         repository: registry.example.com/migrate
+         registry: registry.example.com
+         repository: migrate
 
    crons:
      cleanup:
        schedule: "0 0 * * *"
        restartPolicy: OnFailure
        image:
-         repository: registry.example.com/cleanup
+         registry: registry.example.com
+         repository: cleanup
    ```
 
    Every component needs an image repository and a restart policy, workers a kind as well, and crons a schedule.
@@ -132,7 +136,8 @@ and every other resource below appears only for the entries you declare or the f
 | Deployment              | each worker                  | `kind: Deployment`                |
 | StatefulSet             | each worker                  | `kind: StatefulSet`               |
 | DaemonSet               | each worker                  | `kind: DaemonSet`                 |
-| Job                     | each job, per revision       | always                            |
+| Job                     | each job, per revision       | `hook` unset                      |
+| Job as Helm hook        | each job                     | `hook` set                        |
 | CronJob                 | each cron                    | always                            |
 | Service                 | each worker                  | `service.enabled` and `ports` set |
 | Headless Service        | each worker                  | `kind: StatefulSet`               |
@@ -162,7 +167,8 @@ workers:
     kind: Deployment
     restartPolicy: Always
     image:
-      repository: registry.example.com/api
+      registry: registry.example.com
+      repository: api
     ports:
       http: 8080
     ingressRoute:
@@ -301,7 +307,8 @@ jobs:
   migrate:
     restartPolicy: OnFailure
     image:
-      repository: registry.example.com/migrate
+      registry: registry.example.com
+      repository: migrate
     env:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4317
     configMaps:
@@ -320,6 +327,32 @@ jobs:
         restartPolicy: Always
 ```
 
+### Running a job as a Helm hook
+
+To run a job at a given step of the release rather than alongside the workers, give it a `hook`.
+It then runs as a [Helm hook](https://helm.sh/docs/topics/charts_hooks/),
+and Helm waits for it to complete before going on.
+
+Here the database is migrated on each install and upgrade, before the workers roll out:
+
+```yaml
+jobs:
+  migrate:
+    hook:
+      events: [pre-install, pre-upgrade]
+      weight: 0
+      deletePolicies: [before-hook-creation, hook-succeeded]
+    restartPolicy: OnFailure
+    image:
+      registry: registry.example.com
+      repository: migrate
+```
+
+The job can count on its own ConfigMaps, Secrets, ExternalSecrets and ServiceAccount from its first run,
+since Helm creates them just before it.
+Its volume claims and the release ServiceAccount, however, come with the rest of the release,
+so a `pre-install` job won't find them yet.
+
 ### Images
 
 An empty image tag falls back to the `appVersion` value, then to the chart `AppVersion`.
@@ -328,13 +361,15 @@ or, since the image reference is rendered with tpl, with a template expression:
 
 ```yaml
 image: &image
-  repository: registry.example.com/api
+  registry: registry.example.com
+  repository: api
   pullPolicy: &pullPolicy IfNotPresent
 
 workers:
   api:
     image:
-      repository: "{{ .Values.image.repository }}" # through 'tpl'
+      registry: "{{ .Values.image.registry }}" # through 'tpl'
+      repository: "{{ .Values.image.repository }}"
       pullPolicy: *pullPolicy
 jobs:
   migrate:
