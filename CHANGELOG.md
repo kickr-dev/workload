@@ -1,3 +1,17 @@
+## [0.3.0](https://gitlab.com/kickr-dev/workload/compare/v0.2.0...v0.3.0) (2026-10-30)
+
+### Features
+
+* **chart:** add helm hook support on jobs ([553102c](https://gitlab.com/kickr-dev/workload/commit/553102c48bc04bac6052fbddc0c29417bd568a35))
+
+### Chores
+
+* **schema:** improve schema for ArtifactHub ([64a0140](https://gitlab.com/kickr-dev/workload/commit/64a01404c9aa3841aae006c1019ba03bb90ab831))
+
+### Tests
+
+* fix paths during helm template test following script move ([37840a1](https://gitlab.com/kickr-dev/workload/commit/37840a1a0de32857e53f3576218900375ea6d114))
+
 ## [0.2.0](https://gitlab.com/kickr-dev/workload/compare/v0.1.0...v0.2.0) (2026-10-26)
 
 ### Features
