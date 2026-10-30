@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-dir="$(realpath "$(dirname "$0")/..")"
+dir="$(realpath "$(dirname "$0")/../..")"
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
