@@ -1,8 +1,6 @@
 apiVersion: v2
 name: workload
-description: |
-  Kickr workload chart usage example with values JSON schema, default values and the only
-  and simple template needed to use kickr workload chart
+description: A Helm chart for Kubernetes
 
 # Chart type, either 'application' or 'library'.
 #   - An application chart is packaged into a versioned archive and deployed.

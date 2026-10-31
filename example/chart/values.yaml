@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://gitlab.com/kickr-dev/workload/-/raw/main/chart/values.schema.json
-# Available keys: https://gitlab.com/kickr-dev/workload/-/blob/main/chart/values.yaml
+# Reference: https://gitlab.com/kickr-dev/workload/-/blob/main/chart/values.yaml
 
 imagePullSecrets: []
 
